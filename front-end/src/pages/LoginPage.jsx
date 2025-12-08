@@ -3,16 +3,10 @@ import {useNavigate} from 'react-router-dom';
 import apiService from '../service/apiService';
 
 const LoginPage = () => {
-    // TODO: username state를 선언하세요
-    const [username, setUsername] = useState('');
-
-    // TODO: password state를 선언하세요
+    const [userEmail, setUserEmail] = useState('');
     const [password, setPassword] = useState('');
-
-    // TODO: loading state를 선언하세요
     const [loading, setLoading] = useState(false);
 
-    // TODO: useNavigate를 사용하여 navigate 함수를 가져오세요
     const navigate = useNavigate();
 
     // TODO: handleLogin 함수를 작성하세요
@@ -23,8 +17,17 @@ const LoginPage = () => {
     // 5. 실패 시: alert로 에러 메시지 표시
     // 6. finally: loading을 false로 설정
     const handleLogin = async () => {
-        // TODO: 함수를 완성하세요
-        const response = await apiService.login(username, password);
+        try {
+            const response = await apiService.login(userEmail, password);
+
+            alert("로그인 성공");
+            navigate("/feed");
+        } catch (error) {
+            if (error.response?.status === 401) {
+                alert("이메일 또는 비밀번호 올바르지 않음");
+            }
+            alert("로그인 실패")
+        }
 
     };
 
@@ -43,8 +46,8 @@ const LoginPage = () => {
                         <input
                             className="login-input"
                             placeholder="전화번호, 사용자 이름 또는 이메일"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            value={userEmail}
+                            onChange={(e) => setUserEmail(e.target.value)}
                             onKeyPress={handleKeyPress}
                         />
 

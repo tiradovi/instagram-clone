@@ -54,9 +54,9 @@ const apiService = {
     },
 
     // 로그인 API
-    login: async (username, password) => {
+    login: async (userEmail, password) => {
         const response = await api.post(`/auth/login`, {
-            userName: username,
+            userEmail: userEmail,
             userPassword: password
         });
 

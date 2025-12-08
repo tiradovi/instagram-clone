@@ -4,16 +4,15 @@ import apiService from '../service/apiService';
 import {Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Home, PlusSquare, Film, User} from 'lucide-react';
 
 const FeedPage = () => {
-    // TODO: posts state를 선언하세요 (초기값: [])
-
-    // TODO: stories state를 선언하세요 (초기값: [])
-
-    // TODO: loading state를 선언하세요 (초기값: true)
+    const [posts, setPosts] = useState([]);
+    const [stories, setStories] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // TODO: useNavigate를 사용하여 navigate 함수를 가져오세요
+    const navigate = useNavigate();
 
-    // TODO: useEffect를 사용하여 컴포넌트 마운트 시 loadFeedData 호출
+    useEffect(() => {
+        loadFeedData();
+    }, []);
 
     // TODO: loadFeedData 함수를 작성하세요
     // 1. try-catch 사용
@@ -23,6 +22,11 @@ const FeedPage = () => {
     // 5. finally: loading을 false로 설정
     const loadFeedData = async () => {
         // TODO: 함수를 완성하세요
+        try {
+
+        }catch (error) {
+
+        }
     };
 
     // TODO: toggleLike 함수를 작성하세요

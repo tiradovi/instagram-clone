@@ -18,7 +18,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void signUp(User user) {
-        String existUserEmail = userMapper.selectUserByUserEmail(user.getUserEmail());
+        User existUserEmail = userMapper.selectUserByUserEmail(user.getUserEmail());
         String existUserName = userMapper.selectUserByUsername(user.getUserName());
 
         if (existUserEmail != null) throw new RuntimeException("이미 존재하는 이메일");
@@ -40,25 +40,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public User login(String userEmail, String userPassword) {
         // 이메일로 사용자 조회
-        User existUser = userMapper.selectUserByUserEmail(userEmail);
+        User user = userMapper.selectUserByUserEmail(userEmail);
 
-        if(existUser == null){
+        if(user == null){
             log.warn("로그인 실패 - 존재하지 않는 이메일: {}",userEmail);
             return null;
         }
 
         // 비밀번호 검증
-        if(!bCryptPasswordEncoder.matches(userPassword,existUser.getUserPassword())){
+        if(!bCryptPasswordEncoder.matches(userPassword,user.getUserPassword())){
             log.warn("로그인 실패 - 잘못된 비밀번호 : {}",userEmail);
             return null;
         }
 
         // 비밀번호는 응답에서 제거
-        existUser.setUserPassword(null);
-        log.info("로그인 성공");
+        user.setUserPassword(null);
+        log.info("로그인 성공 - 이메일: {}", user.getUserEmail());
 
-
-        return null;
+        return user;
     }
 
     @Override

@@ -12,25 +12,25 @@
         ORDER BY user_id DESC
     </select>
 
-    <select id="selectUserByUserId" parameterType="User">
+    <select id="selectUserByUserId" parameterType="int" resultType="User">
         SELECT *
         FROM users
         WHERE user_id = #{userId}
     </select>
 
-    <select id="selectUserByUsername" parameterType="User">
+    <select id="selectUserByUsername" parameterType="User" resultType="String">
         SELECT user_name
         FROM users
         WHERE user_name = #{userName}
     </select>
 
-    <select id="selectUserByUserEmail" parameterType="User">
-        SELECT user_email
+    <select id="selectUserByUserEmail" parameterType="String" resultType="User">
+        SELECT *
         FROM users
         WHERE user_email = #{userEmail}
     </select>
 
-    <select id="selectUserByUserPassword" resultType="User">
+    <select id="selectUserByUserPassword" parameterType="String" resultType="User">
         SELECT *
         FROM users
         WHERE user_password = #{userPassword}

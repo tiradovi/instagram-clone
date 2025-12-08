@@ -14,22 +14,12 @@ import {useNavigate} from 'react-router-dom';
 import apiService from '../service/apiService';
 
 const SignupPage = () => {
-    // TODO: username state를 선언하세요 (user_name)
     const [username, setUsername] = useState('');
-
-    // TODO: email state를 선언하세요 (user_email)
     const [email, setEmail] = useState('');
-
-    // TODO: password state를 선언하세요 (user_password)
     const [password, setPassword] = useState('');
-
-    // TODO: fullName state를 선언하세요 (user_fullname)
     const [fullName, setFullName] = useState('');
-
-    // TODO: loading state를 선언하세요
     const [loading, setLoading] = useState(false);
 
-    // TODO: useNavigate를 사용하여 navigate 함수를 가져오세요
     const navigate = useNavigate();
 
     // TODO: handleSignup 함수를 작성하세요
