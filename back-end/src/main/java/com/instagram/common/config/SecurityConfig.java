@@ -17,15 +17,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .authorizeHttpRequests(
+                        auth -> auth
+                                .anyRequest().permitAll())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(basic -> basic.disable())
                 .sessionManagement(session -> session
-                        .maximumSessions(1) // 동시 세션 1개만 허용
-                        .maxSessionsPreventsLogin(false)); // 새 로그인 시 기존 세션 무효화
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                );
+
         return http.build();
     }
 }

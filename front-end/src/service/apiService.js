@@ -2,6 +2,8 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:9000/api';
 
+axios.defaults.withCredentials = true;
+
 // axios 인스턴스를 생성
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -80,6 +82,8 @@ const apiService = {
     // GET /posts
     getPosts: async () => {
         // TODO: API 호출을 완성하세요
+        const response = await api.get(`/posts`);
+        return response.data;
     },
 
     // TODO: 특정 게시물 조회
@@ -92,7 +96,17 @@ const apiService = {
     // POST /posts
     // body: { postImage, postCaption, postLocation }
     createPost: async (postImage, postCaption, postLocation) => {
-        // TODO: API 호출을 완성하세요
+
+        const postData = new FormData();
+        postData.append('postImage', postImage);
+        postData.append('postCaption', postCaption);
+        postData.append('postLocation', postLocation);
+        const response = await api.post("/posts", postData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        });
+        return response.data;
     },
 
     // TODO: 게시물 삭제

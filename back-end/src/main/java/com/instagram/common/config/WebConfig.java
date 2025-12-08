@@ -11,12 +11,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${file.upload.path}")
-    private String fileUploadPath;
-    @Value("${file.product.upload.path}")
-    private String productFileUploadPath;
-    @Value("${file.board.upload.path}")
-    private String boardFileUploadPath;
+    @Value("${file.profile.upload.path}")
+    private String profileFileUploadPath;
+    @Value("${file.story.upload.path}")
+    private String storyFileUploadPath;
+    @Value("${file.post.upload.path}")
+    private  String postFileUploadPath;
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -41,11 +41,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        registry.addResourceHandler("/profile_images/**").addResourceLocations("file:" + fileUploadPath + "/");
+        registry.addResourceHandler("/profile_images/**").addResourceLocations("file:" + profileFileUploadPath + "/");
 
-        registry.addResourceHandler("/product_images/**").addResourceLocations("file:" + productFileUploadPath + "/");
+        registry.addResourceHandler("/story_images/**").addResourceLocations("file:" + storyFileUploadPath + "/");
 
-        registry.addResourceHandler("/board_images/**").addResourceLocations("file:" + boardFileUploadPath + "/");
+        registry.addResourceHandler("/post_images/**").addResourceLocations("file:" + postFileUploadPath + "/");
+
 
 
     }

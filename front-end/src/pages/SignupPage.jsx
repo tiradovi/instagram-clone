@@ -33,7 +33,6 @@ const SignupPage = () => {
     // 8. 실패 시: alert로 에러 메시지 표시 (409: 중복, 400: 잘못된 입력)
     // 9. finally: loading을 false로 설정
     const handleSignup = async () => {
-        // TODO: 함수를 완성하세요
         try {
             const response = await apiService.signup(username, email, password, fullName);
             alert("회원가입 완료");
@@ -46,7 +45,7 @@ const SignupPage = () => {
             } else if (error.response?.status === 409) {
                 errorMessage = '이미 사용중인 사용자 이름 또는 이메일 입니다.';
             } else if (error.response?.status === 400) {
-                errorMessage = '일단 안되고 있습니다.'
+                errorMessage = '잘못된 입력입니다.'
             }
             alert(errorMessage);
         }
