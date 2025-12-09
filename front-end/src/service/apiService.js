@@ -78,23 +78,21 @@ const apiService = {
 
     // ===== 게시물 API =====
 
-    // TODO: 모든 게시물 조회
-    // GET /posts
+    //  모든 게시물 조회
     getPosts: async () => {
-        // TODO: API 호출을 완성하세요
         const response = await api.get(`/posts`);
         return response.data;
     },
 
-    // TODO: 특정 게시물 조회
+    // 특정 게시물 조회
     // GET /posts/:postId
     getPost: async (postId) => {
         // TODO: API 호출을 완성하세요
+        const response = await api.get(`/posts/:postId`);
+        return response.data;
     },
 
-    // TODO: 게시물 작성
-    // POST /posts
-    // body: { postImage, postCaption, postLocation }
+    // 게시물 작성
     createPost: async (postImage, postCaption, postLocation) => {
 
         const postData = new FormData();
@@ -152,17 +150,22 @@ const apiService = {
 
     // ===== 스토리 API =====
 
-    // TODO: 스토리 목록 조회
-    // GET /stories
+    // 모든 스토리 조회
     getStories: async () => {
-        // TODO: API 호출을 완성하세요
+        const response = await api.get(`/stories`);
+        return response.data;
     },
 
-    // TODO: 스토리 작성
-    // POST /stories
-    // body: { storyImage }
+    // 스토리 작성
     createStory: async (storyImage) => {
-        // TODO: API 호출을 완성하세요
+        const storyData = new FormData();
+        storyData.append('storyImage', storyImage);
+        const response = await api.post("/stories", storyData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        });
+        return response.data;
     },
 
     // ===== 사용자 API =====

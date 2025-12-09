@@ -24,10 +24,10 @@ public class UserServiceImpl implements UserService {
         if (existUserEmail != null) throw new RuntimeException("이미 존재하는 이메일");
         if (existUserName != null) throw new RuntimeException("이미 존재하는 사용자명");
 
-        //기본 아바타 설정
+     /*   //기본 아바타 설정
         if (user.getUserAvatar() == null || user.getUserAvatar().isEmpty()) {
             user.setUserAvatar("default-avatar.png");
-        }
+        }*/
 
         // 비밀번호 암호화 저장
         user.setUserPassword(bCryptPasswordEncoder.encode(user.getUserPassword()));

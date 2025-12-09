@@ -31,8 +31,8 @@ public class PostController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         int currentUserId = Integer.parseInt(authentication.getName());
         */
-        String token = authHeader.substring(7); // 맨 앞 "Bearer "제거하고 추출
-        int currentUserId = jwtUtil.getUserIdFromToken(token); // token에서 userId 추출
+        String jwtToken = authHeader.substring(7); // 맨 앞 "Bearer "제거하고 추출
+        int currentUserId = jwtUtil.getUserIdFromToken(jwtToken); // token에서 userId 추출
 
         boolean success = postService.createPost(postImage, postCaption, postLocation, currentUserId);
 

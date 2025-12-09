@@ -1,0 +1,175 @@
+import React, {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import apiService from '../service/apiService';
+import {ArrowLeft, Image, X} from 'lucide-react';
+import {getFilteredFile, FILTER_OPTIONS} from '../service/filterService';
+
+const StoryUploadPage = () => {
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [selectedFilter, setSelectedFilter] = useState('none');
+
+    const navigate = useNavigate();
+
+    const user = JSON.parse(localStorage.getItem('user') || {});
+
+
+    const handleImageChange = (e) => {
+        const f = e.target.files[0];
+        if (f) {
+            setSelectedImage(f);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+                setSelectedFilter('none');
+            };
+            reader.readAsDataURL(f);
+        }
+    };
+
+    const handlePost = async () => {
+        if (!selectedImage) {
+            alert("이미지를 선택해주세요.");
+            return;
+        }
+        try {
+            setLoading(true);
+            const filteredImage = await getFilteredFile(selectedImage, selectedFilter);
+            await apiService.createStory(filteredImage);
+            alert("스토리가 성공적으로 업로드되었습니다.");
+            navigate("/feed")
+        } catch (err) {
+            alert("스토리 업로드에 실패했습니다.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setSelectedImage(null);
+        setImagePreview(null);
+        setSelectedFilter('none');
+    };
+
+    return (
+        <div className="upload-container">
+            <header className="upload-header">
+                <div className="upload-header-content">
+                    <button className="upload-back-btn"
+                            onClick={() => navigate(("/feed"))}>
+                        <ArrowLeft size={24}/>
+                    </button>
+
+                    <h2 className="upload-title">새 스토리</h2>
+
+                    <button
+                        className="upload-submit-btn"
+                        onClick={handlePost}
+                        disabled={loading || !selectedImage}
+                        style={{opacity: loading || !selectedImage ? 0.5 : 1}}
+                    >
+                        {loading ? '업로드 중...' : '공유'}
+                    </button>
+                </div>
+            </header>
+
+            <div className="upload-content">
+                <div className="upload-card">
+                    <div className="upload-image-area">
+
+                        {imagePreview ? (
+                            <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
+                                <div style={{position: 'relative'}}>
+                                    <img src={imagePreview}
+                                         className="upload-preview-image"
+                                         style={{filter: selectedFilter}}
+                                         alt="미리보기 이미지"/>
+
+                                    <button onClick={handleRemoveImage} style={{
+                                        position: 'absolute',
+                                        top: '1rem',
+                                        right: '0',
+                                        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                                        color: 'white',
+                                        borderRadius: '50%',
+                                        width: '2rem',
+                                        height: '2rem'
+                                    }}>
+                                        <X size={24} />
+                                    </button>
+                                </div>
+
+                                <div className="filter-scroll-container">
+                                    {FILTER_OPTIONS.map((option) => (
+                                        <div
+                                            key={option.name}
+                                            className={`filter-item ${setSelectedFilter === option.filter ? 'active' : ''}`}
+                                            onClick={() => {
+                                                setSelectedFilter(option.filter)
+                                            }}
+                                        >
+                                            <span className="filter-name">{option.name}</span>
+
+                                            <div
+                                                className="filter-thumbnail"
+                                                style={{
+                                                    backgroundImage: `url(${imagePreview})`,
+                                                    filter: option.filter,
+                                                }}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <label className="upload-change-btn">
+                                    이미지 변경
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        className="upload-file-input"
+                                    />
+                                </label>
+                            </div>
+                        ) : (
+                            <label className="upload-label">
+                                <Image className="upload-icon"/>
+                                <span className="upload-text">
+                                    스토리에 공유할 사진을 선택하세요
+                                </span>
+                                <span className="upload-select-btn">
+                                    컴퓨터에서 선택
+                                </span>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    className="upload-file-input"
+                                />
+                            </label>
+                        )}
+                    </div>
+
+                    {imagePreview && (
+                        <div style={{
+                            padding: '1rem',
+                            borderTop: '1px solid #dbdbdb',
+                            backgroundColor: '#fafafa'
+                        }}>
+                            <p style={{
+                                fontSize: '0.875rem',
+                                color: '#8e8e8e',
+                                textAlign: 'center'
+                            }}>
+                                스토리는 24시간 후 자동으로 삭제됩니다
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default StoryUploadPage;

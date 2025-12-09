@@ -4,8 +4,9 @@ import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import PrivateRoute from "./provider/PrivateRoute";
 import FeedPage from "./pages/FeedPage";
-import UploadPage from "./pages/UploadPage";
+import PostUploadPage from "./pages/PostUploadPage";
 import SignupPage from "./pages/SignupPage";
+import StoryUploadPage from "./pages/StoryUploadPage";
 
 function App() {
     return (
@@ -21,10 +22,17 @@ function App() {
                                    <FeedPage/>
                                </PrivateRoute>}
                     />
-                    <Route path="/upload"
+                    <Route path="/post/upload"
                            element={
                                <PrivateRoute>
-                                   <UploadPage/>
+                                   <PostUploadPage/>
+                               </PrivateRoute>
+                           }
+                    />
+                    <Route path="/story/upload"
+                           element={
+                               <PrivateRoute>
+                                   <StoryUploadPage/>
                                </PrivateRoute>
                            }
                     />

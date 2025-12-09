@@ -2,14 +2,17 @@ import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import apiService from '../service/apiService';
 import {ArrowLeft, Image} from 'lucide-react';
+import {getFilteredFile, FILTER_OPTIONS} from "../service/filterService";
 
-const UploadPage = () => {
+const PostUploadPage = () => {
 
     const [selectedImage, setSelectedImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [caption, setCaption] = useState('');
     const [location, setLocation] = useState('');
     const [loading, setLoading] = useState(false);
+    const [selectedFilter, setSelectedFilter] = useState('none');
+
     const navigate = useNavigate();
 
     const user = JSON.parse(localStorage.getItem('user') || {});
@@ -26,18 +29,20 @@ const UploadPage = () => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result);
+                setSelectedFilter('none');
             };
             reader.readAsDataURL(f);
         }
     };
     const handlePost = async () => {
-        if (!selectedImage || !caption.trim()) {
-            alert("이미지와 캡션을 입력해주세요.");
+        if (!selectedImage || !caption.trim() || !location.trim()) {
+            alert("이미지와 캡션, 위치를 전부 입력해주세요.");
             return;
         }
         try {
             setLoading(true);
-            await apiService.createPost(selectedImage, caption, location);
+            const filteredImage = await getFilteredFile(selectedImage, selectedFilter);
+            await apiService.createPost(filteredImage, caption, location);
             alert("게시물이 성공적으로 등록되었습니다.");
             navigate("/feed")
         } catch (err) {
@@ -77,9 +82,26 @@ const UploadPage = () => {
                 <div className="upload-card">
                     <div className="upload-image-area">
                         {imagePreview ? (
-                            <>
+                            <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
                                 <img src={imagePreview}
-                                     className="upload-preview-image"/>
+                                     className="upload-preview-image"
+                                     style={{filter: selectedFilter}}
+                                     alt="미리보기 이미지"/>
+                                <div className="filter-scroll-container">
+                                    {FILTER_OPTIONS.map((option) => (
+                                        <div key={option.name}
+                                             className={`filter-item ${selectedFilter === option.filter ? 'active' : 'none'}`}
+                                             onClick={() => setSelectedFilter(option.filter)}>
+                                            <span className="filter-name">{option.name}</span>
+                                            <div className="filter-thumnail"
+                                                 style={{
+                                                     backgroundImage: `url(${imagePreview})`,
+                                                     filter: option.filter,
+                                                 }}>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                                 <label className="upload-change-btn">
                                     이미지 변경
                                     <input
@@ -89,7 +111,7 @@ const UploadPage = () => {
                                         className="upload-file-input"
                                     />
                                 </label>
-                            </>
+                            </div>
                         ) : (
                             <label className="upload-label">
                                 <Image className="upload-icon"/>
@@ -104,7 +126,6 @@ const UploadPage = () => {
                                        onChange={handleImageChange}
                                        className="upload-file-input"
                                 />
-
                             </label>)
                         }
                     </div>
@@ -151,4 +172,4 @@ const UploadPage = () => {
     );
 };
 
-export default UploadPage;
+export default PostUploadPage;
