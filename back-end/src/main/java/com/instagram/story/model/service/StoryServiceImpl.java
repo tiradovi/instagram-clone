@@ -6,6 +6,7 @@ import com.instagram.story.model.mapper.StoryMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,9 +28,9 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public Story getStoriesByUserId(int userId) {
+    public List<Story> getStoriesByUserId(int userId) {
         log.info("특정 사용자 스토리 조회 - 사용자 ID: {}", userId);
-        Story story = storyMapper.selectStoriesByUserId(userId);
+        List<Story> story = storyMapper.selectStoriesByUserId(userId);
         return story;
     }
 
@@ -40,9 +41,9 @@ public class StoryServiceImpl implements StoryService {
 
             Story story = new Story();
             story.setUserId(currentUserId);
-            story.setStoryImage("");
-            storyMapper.insertStory(story);
+            story.setStoryImage("default");
 
+            storyMapper.insertStory(story);
             String imageUrl = fileUploadService.uploadStoryImage(storyImage, story.getStoryId(), "story");
 
             storyMapper.updateStoryImage(story.getStoryId(), imageUrl);
@@ -58,5 +59,23 @@ public class StoryServiceImpl implements StoryService {
     @Override
     public void deleteExpiredStories() {
 
+    }
+
+    @Override
+    @Transactional
+    public void deleteStory(int currentUserId, int storyId) {
+        try {
+            log.info("스토리 삭제 시작 - 사용자 ID:{}", currentUserId);
+
+            Story currentStory = storyMapper.selectStoryByStoryId(storyId);
+            fileUploadService.deleteFile(currentStory.getStoryImage());
+
+            storyMapper.deleteStory(currentUserId, storyId);
+
+            log.info("스토리 삭제 완료 - 스토리 ID : {} ", storyId);
+        } catch (Exception e) {
+            log.error("스토리 작성 실패 : ", e);
+
+        }
     }
 }

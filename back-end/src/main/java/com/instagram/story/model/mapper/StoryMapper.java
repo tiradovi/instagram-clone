@@ -9,10 +9,14 @@ import java.util.List;
 public interface StoryMapper {
     List<Story> selectAllStories();
 
-    Story selectStoriesByUserId(int userId);
+    List<Story> selectStoriesByUserId(int userId);
+
+    Story selectStoryByStoryId(int storyId);
 
     void insertStory(Story story);
 
     void updateStoryImage(int storyId, String storyImage);
+
+    void deleteStory(int userId, int storyId);
 
 }

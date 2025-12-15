@@ -1,70 +1,42 @@
-# Getting Started with Create React App
+# 트러블 슈팅
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 📌 User Feed 페이지 성능 개선 (시간 복잡도 최적화)
 
-## Available Scripts
+## 문제점
 
-In the project directory, you can run:
+기존 UserFeed 페이지는 **전체 게시물을 조회한 뒤, 클라이언트에서 필터링**하는 방식으로 구현되어 있었습니다.
 
-### `npm start`
+```javascript
+// 전체 게시물 가져오기
+const allPosts = await apiService.getPosts();
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+// 내 게시물만 필터링
+const myPosts = allPosts.filter(post => post.userId !== userId);
+setPosts(myPosts);
+```
+이 방식은 다음과 같은 성능 문제가 있었습니다:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+* 불필요하게 모든 게시물을 가져와 네트워크 사용량 증가
+* 게시물이 많아질수록 클라이언트 필터링 비용(O(n)) 증가
+* 데이터 증가에 따른 전체적인 응답 속도 저하
 
-### `npm test`
+## 개선 내용
+백엔드에 이미 제공되던 getUserPost(userId) API를 활용하여,
+클라이언트에서 전체 게시물을 가져오지 않고 필요한 게시물만 요청하도록 변경했습니다.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 변경 후 코드
+```javascript
+// 유저 아이디를 기반으로 게시물 가져오기
+const myPosts = await apiService.getUserPost(userId);
+setPosts(myPosts);
+```
 
-### `npm run build`
+## 결과
+* 클라이언트 필터링 제거 → 서버에서 즉시 필터링
+* 네트워크 비용 감소 (전체 게시물 → 내 게시물만 요청)
+* My Feed 페이지 로딩 속도 향상
+* 클라이언트 코드 단순화 및 유지 보수성 증가
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 요약
+전체 게시물을 받아 클라이언트에서 필터링하던 구조를, 백엔드 userId 기반 필터링 API(getUserPost)를 활용하는 방식으로 개선하여
+시간 복잡도와 네트워크 비용을 모두 최적화했습니다.

@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../service/apiService';
+import { useAuth } from '../provider/AuthContext';
 
 const LoginPage = () => {
     const [userEmail, setUserEmail] = useState('');
@@ -8,32 +9,52 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+    const { login } = useAuth();
 
-    // TODO: handleLogin 함수를 작성하세요
-    // 1. 입력값 검증 (username과 password가 비어있는지 확인)
-    // 2. loading을 true로 설정
-    // 3. apiService.login(username, password) 호출
-    // 4. 성공 시: localStorage에 token과 user 저장, /feed로 이동
-    // 5. 실패 시: alert로 에러 메시지 표시
-    // 6. finally: loading을 false로 설정
     const handleLogin = async () => {
+        if (!userEmail || !password) {
+            alert("이메일과 비밀번호를 입력해주세요.");
+            return;
+        }
+
+        setLoading(true);
+
         try {
             const response = await apiService.login(userEmail, password);
 
+            const { user, token } = response;
+
+            login(user, token);
             alert("로그인 성공");
             navigate("/feed");
         } catch (error) {
             if (error.response?.status === 401) {
-                alert("이메일 또는 비밀번호 올바르지 않음");
+                alert("이메일 또는 비밀번호가 올바르지 않습니다.");
+            } else {
+                alert("로그인에 실패했습니다.");
             }
-            alert("로그인 실패")
+        } finally {
+            setLoading(false);
         }
-
     };
 
-    // TODO: Enter 키 입력 시 handleLogin 호출하는 함수 작성
+    const handleKakaoLogin = () => {
+        const API_KEY = process.env.REACT_APP_KAKAO_CLIENT_ID;
+        const REDIRECT_URI = process.env.REACT_APP_KAKAO_REDIRECT_URL;
+
+        if (!API_KEY || !REDIRECT_URI) {
+            alert("카카오 설정 오류: 환경변수를 확인해주세요.");
+            return;
+        }
+
+        const kakaoAuthUrl =
+            `https://kauth.kakao.com/oauth/authorize?client_id=${API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+
+        window.location.href = kakaoAuthUrl;
+    };
+
     const handleKeyPress = (e) => {
-        // TODO: 함수를 완성하세요
+        if (e.key === 'Enter') handleLogin();
     };
 
     return (
@@ -42,32 +63,31 @@ const LoginPage = () => {
                 <div className="login-card">
                     <h1 className="login-title">Instagram</h1>
 
-                    <div>
-                        <input
-                            className="login-input"
-                            placeholder="전화번호, 사용자 이름 또는 이메일"
-                            value={userEmail}
-                            onChange={(e) => setUserEmail(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                        />
+                    <input
+                        className="login-input"
+                        type="text"
+                        placeholder="전화번호, 사용자 이름 또는 이메일"
+                        value={userEmail}
+                        onChange={e => setUserEmail(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                    />
 
-                        <input
-                            className="login-input"
-                            type="password"
-                            placeholder="비밀번호"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                        />
+                    <input
+                        className="login-input"
+                        type="password"
+                        placeholder="비밀번호"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                    />
 
-                        {/* TODO: 로그인 버튼 작성 */}
-                        {/* onClick: handleLogin */}
-                        {/* disabled: loading */}
-                        {/* 버튼 텍스트: loading이면 "로그인 중...", 아니면 "로그인" */}
-                        <button className="login-button" onClick={handleLogin} disabled={loading}>
-                            {loading ? "로그인 중..." : "로그인"}
-                        </button>
-                    </div>
+                    <button
+                        className="login-button"
+                        onClick={handleLogin}
+                        disabled={loading}
+                    >
+                        {loading ? '로그인 중...' : '로그인'}
+                    </button>
 
                     <div className="divider">
                         <div className="divider-line"></div>
@@ -75,17 +95,23 @@ const LoginPage = () => {
                         <div className="divider-line"></div>
                     </div>
 
-                    <button className="facebook-login">
-                        SNS로 로그인
-                    </button>
-
-                    <button className="forgot-password">
-                        비밀번호를 잊으셨나요?
-                    </button>
+                    <img
+                        className="kakaotalk-login"
+                        onClick={handleKakaoLogin}
+                        src="/static/img/kakao_login_large_wide.png"
+                        alt="카카오 로그인"
+                    />
                 </div>
+
                 <div className="signup-box">
                     <p>
-                        계정이 없으신가요? <button className="signup-link" onClick={() => navigate('/signup')}>가입하기</button>
+                        계정이 없으신가요?
+                        <button
+                            className="signup-link"
+                            onClick={() => navigate("/signup")}
+                        >
+                            가입하기
+                        </button>
                     </p>
                 </div>
             </div>

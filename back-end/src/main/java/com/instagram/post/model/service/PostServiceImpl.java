@@ -6,15 +6,16 @@ import com.instagram.post.model.mapper.PostMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
+
     private final PostMapper postMapper;
     private final FileUploadService fileUploadService;
 
@@ -24,45 +25,69 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post getPostById(int postId, int currentUserId) {
-        return postMapper.selectPostById(postId, currentUserId);
+    public List<Post> getPostsByUserId(int userId) {
+        return postMapper.selectPostsByUserId(userId);
     }
 
     @Override
-    public boolean createPost(MultipartFile postImage, String postCaption, String postLocation, int currentUserId) {
-        try {
-            String imageUrl = fileUploadService.uploadPostImage(postImage);
+    public Post getPostById(int postId, int currentUserId) {
+        Post post = postMapper.selectPostByPostId(postId, currentUserId);
+        if (post == null) {
+            throw new IllegalArgumentException("게시물이 존재하지 않습니다.");
+        }
+        return post;
+    }
 
-            Post post = new Post();
-            post.setUserId(currentUserId);
-            post.setPostCaption(postCaption);
-            post.setPostLocation(postLocation);
-            post.setPostImage(imageUrl);
+    @Transactional
+    @Override
+    public void createPost(
+            MultipartFile postImage,
+            String postCaption,
+            String postLocation,
+            int currentUserId
+    ) throws IOException {
+        if (postImage == null || postImage.isEmpty()) {
+            throw new IllegalArgumentException("이미지는 필수입니다.");
+        }
 
-            return postMapper.insertPost(post) > 0;
-        } catch (Exception e) {
-            log.error("게시물 작성 실패 : ", e);
-            return false;
+        String imageUrl = fileUploadService.uploadPostImage(postImage);
+
+        Post post = new Post();
+        post.setUserId(currentUserId);
+        post.setPostCaption(postCaption);
+        post.setPostLocation(postLocation);
+        post.setPostImage(imageUrl);
+
+        int result = postMapper.insertPost(post);
+        if (result == 0) {
+            throw new IllegalStateException("게시물 저장에 실패했습니다.");
         }
     }
 
+    @Transactional
     @Override
-    public boolean deletePost(int postId) {
-        return postMapper.deletePost(postId) > 0;
+    public void deletePost(int postId) {
+        int result = postMapper.deletePost(postId);
+        if (result == 0) {
+            throw new IllegalArgumentException("삭제할 게시물이 없습니다.");
+        }
     }
 
+    @Transactional
     @Override
-    public List<Post> getPostsByUserId(int userId, int currentUserId) {
-        return postMapper.selectPostsByUserId(userId, currentUserId);
+    public void addLike(int postId, int userId) {
+        int result = postMapper.insertLike(postId, userId);
+        if (result == 0) {
+            throw new IllegalStateException("좋아요 처리에 실패했습니다.");
+        }
     }
 
+    @Transactional
     @Override
-    public boolean addLike(int postId, int userId) {
-        return postMapper.insertLike(postId, userId) > 0;
-    }
-
-    @Override
-    public boolean removeLike(int postId, int userId) {
-        return postMapper.deleteLike(postId, userId) > 0;
+    public void removeLike(int postId, int userId) {
+        int result = postMapper.deleteLike(postId, userId);
+        if (result == 0) {
+            throw new IllegalStateException("좋아요 취소에 실패했습니다.");
+        }
     }
 }

@@ -1,6 +1,6 @@
 package com.instagram.post.contoller;
 
-import com.instagram.common.util.JwtUtil;
+import com.instagram.common.util.AuthUtil;
 import com.instagram.post.model.dto.Post;
 import com.instagram.post.model.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -17,38 +18,65 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
 public class PostController {
+
     private final PostService postService;
-    private final JwtUtil jwtUtil;
+    private final AuthUtil authUtil;
 
     @PostMapping
-    public ResponseEntity<String> createPost(@RequestPart MultipartFile postImage,
-                                             @RequestPart String postCaption,
-                                             @RequestPart String postLocation,
-                                             @RequestHeader("Authorization") String authHeader) {
-        // 현재 로그인한 사용자 id 가져오기
-        /*
-        백엔드 인증 기반
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        int currentUserId = Integer.parseInt(authentication.getName());
-        */
-        String jwtToken = authHeader.substring(7); // 맨 앞 "Bearer "제거하고 추출
-        int currentUserId = jwtUtil.getUserIdFromToken(jwtToken); // token에서 userId 추출
+    public ResponseEntity<Void> createPost(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestPart MultipartFile postImage,
+            @RequestPart String postCaption,
+            @RequestPart String postLocation
+    ) throws IOException {
+        int currentUserId = authUtil.getCurrentUserId(authHeader);
+        postService.createPost(postImage, postCaption, postLocation, currentUserId);
 
-        boolean success = postService.createPost(postImage, postCaption, postLocation, currentUserId);
-
-
-        if (success) {
-            return ResponseEntity.ok("success");
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
-
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping
-    public List<Post> getAllPosts(@RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-        int currentUserId = jwtUtil.getUserIdFromToken(token);
-        return postService.getAllPosts(currentUserId);
+    public ResponseEntity<List<Post>> getAllPosts(@RequestHeader("Authorization") String authHeader) {
+        int currentUserId = authUtil.getCurrentUserId(authHeader);
+        return ResponseEntity.ok(postService.getAllPosts(currentUserId));
+    }
+
+    @GetMapping("/userId/{userId}")
+    public ResponseEntity<List<Post>> getPostsByUserId(@PathVariable int userId) {
+        return ResponseEntity.ok(postService.getPostsByUserId(userId));
+    }
+
+    @GetMapping("/postId/{postId}")
+    public ResponseEntity<Post> getPostById(@RequestHeader("Authorization") String authHeader, @PathVariable int postId) {
+        int currentUserId = authUtil.getCurrentUserId(authHeader);
+        return ResponseEntity.ok(postService.getPostById(postId, currentUserId));
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable int postId) {
+        postService.deletePost(postId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /* ================= 좋아요 ================= */
+
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<Void> addLike(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable int postId
+    ) {
+        int currentUserId = authUtil.getCurrentUserId(authHeader);
+        postService.addLike(postId, currentUserId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{postId}/like")
+    public ResponseEntity<Void> removeLike(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable int postId
+    ) {
+        int currentUserId = authUtil.getCurrentUserId(authHeader);
+        postService.removeLike(postId, currentUserId);
+        return ResponseEntity.noContent().build();
     }
 }

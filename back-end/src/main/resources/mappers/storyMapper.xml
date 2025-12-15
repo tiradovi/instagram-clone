@@ -16,7 +16,15 @@
     <select id="selectStoriesByUserId" resultType="Story" parameterType="int">
         SELECT *
         FROM active_stories_view
-        WHERE user_id=#{userId}
+        WHERE user_id = #{userId}
+        order by created_at asc
+    </select>
+
+    <!-- 특정 스토리 조회 -->
+    <select id="selectStoryByStoryId" resultType="Story">
+        SELECT *
+        FROM stories
+        WHERE story_id = #{storyId}
     </select>
 
 
@@ -33,10 +41,13 @@
         WHERE story_id = #{storyId}
     </update>
 
-    <!-- 만료된 스토리 비활성화 -->
- <!--   <delete id="deleteStory" parameterType="int">
+    <!-- 스토리 삭제 -->
+    <delete id="deleteStory" parameterType="int">
         DELETE
         FROM stories
         WHERE story_id = #{storyId}
-    </delete>-->
+        AND user_id = #{userId}
+    </delete>
+
+
 </mapper>

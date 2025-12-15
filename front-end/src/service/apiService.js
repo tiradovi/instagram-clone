@@ -1,8 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:9000/api';
-
-axios.defaults.withCredentials = true;
+export const API_BASE_URL = 'http://localhost:9000/api';
 
 // axios 인스턴스를 생성
 const api = axios.create({
@@ -42,8 +40,9 @@ api.interceptors.response.use(
 )
 
 const apiService = {
-    // ===== 인증 API =====
-    // 회원가입 API
+    // ===== 인증 API ===== //
+
+    // 회원가입
     signup: async (username, email, password, fullName) => {
         const response = await api.post(`/auth/signup`, {
             userName: username,
@@ -55,14 +54,13 @@ const apiService = {
         return response.data;
     },
 
-    // 로그인 API
+    // 로그인
     login: async (userEmail, password) => {
         const response = await api.post(`/auth/login`, {
             userEmail: userEmail,
             userPassword: password
         });
 
-        // 토큰 정보 localStorage 저장
         if (response.data.token) {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -70,13 +68,14 @@ const apiService = {
         return response.data;
     },
 
-    // TODO: 로그아웃 함수
-    // localStorage에서 token과 user 제거하고 /login으로 이동
+    // 로그아웃
     logout: () => {
-        // TODO: 로그아웃 로직을 완성하세요
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
     },
 
-    // ===== 게시물 API =====
+    // ===== 게시물 API ===== //
 
     //  모든 게시물 조회
     getPosts: async () => {
@@ -84,22 +83,25 @@ const apiService = {
         return response.data;
     },
 
-    // 특정 게시물 조회
-    // GET /posts/:postId
-    getPost: async (postId) => {
-        // TODO: API 호출을 완성하세요
-        const response = await api.get(`/posts/:postId`);
+    // 특정 유저 게시물 조회
+    getPostByUserId: async (userId) => {
+        const response = await api.get(`/posts/userId/${userId}`);
         return response.data;
     },
 
-    // 게시물 작성
-    createPost: async (postImage, postCaption, postLocation) => {
+    // 특정 게시물 조회
+    getPostByPostId: async (postId) => {
+        const response = await api.get(`/posts/postId/${postId}`);
+        return response.data;
+    },
 
-        const postData = new FormData();
-        postData.append('postImage', postImage);
-        postData.append('postCaption', postCaption);
-        postData.append('postLocation', postLocation);
-        const response = await api.post("/posts", postData, {
+    // 게시물 생성
+    createPost: async (postImage, postCaption, postLocation) => {
+        const formData = new FormData();
+        formData.append('postImage', postImage);
+        formData.append('postCaption', postCaption);
+        formData.append('postLocation', postLocation);
+        const response = await api.post("/posts", formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             }
@@ -111,24 +113,24 @@ const apiService = {
     // DELETE /posts/:postId
     deletePost: async (postId) => {
         // TODO: API 호출을 완성하세요
+        const response = await api.delete(`/posts/${postId}`);
     },
 
     // ===== 좋아요 API =====
 
-    // TODO: 좋아요 추가
-    // POST /posts/:postId/like
+    // 좋아요 추가
     addLike: async (postId) => {
-        // TODO: API 호출을 완성하세요
+        const response = await api.post(`/posts/${postId}/like`);
+        return response.data;
     },
 
-    // TODO: 좋아요 취소
-    // DELETE /posts/:postId/like
+    // 좋아요 취소
     removeLike: async (postId) => {
-        // TODO: API 호출을 완성하세요
+        const response = await api.delete(`/posts/${postId}/like`);
+        return response.data;
     },
 
     // ===== 댓글 API =====
-
     // TODO: 댓글 목록 조회
     // GET /posts/:postId/comments
     getComments: async (postId) => {
@@ -150,52 +152,75 @@ const apiService = {
 
     // ===== 스토리 API =====
 
-    // 모든 스토리 조회
     getStories: async () => {
-        const response = await api.get(`/stories`);
+        const response = await api.get('/stories');
         return response.data;
     },
-
-    // 스토리 작성
+    getStory: async (userId) => {
+        const response = await api.get(`/stories/user/${userId}`);
+        return response.data;
+    },
     createStory: async (storyImage) => {
-        const storyData = new FormData();
-        storyData.append('storyImage', storyImage);
-        const response = await api.post("/stories", storyData, {
+        const formData = new FormData();
+        formData.append('storyImage', storyImage);
+
+        const response = await api.post('/stories', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             }
         });
         return response.data;
     },
+    deleteStory: async (storyId) => {
+        const response = await api.delete(`/stories/${storyId}`);
+        return response.data;
+    },
 
     // ===== 사용자 API =====
 
-    // TODO: 사용자 프로필 조회
-    // GET /users/:userId
-    getUser: async (userId) => {
-        // TODO: API 호출을 완성하세요
+
+    getUserByUserId: async (userId) => {
+        try {
+            const response = await api.get(`/users/userId/${userId}`);
+            return response.data;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+
     },
 
-    // TODO: 사용자 게시물 조회
-    // GET /users/:userId/posts
-    getUserPosts: async (userId) => {
-        // TODO: API 호출을 완성하세요
+    searchUsers: async (query) => {
+        if (!query || query.isEmpty) return [];
+        try {
+            const response = await api.get(`/users/search?q=${query}`);
+            return response.data;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    },
+
+    getUserByUsername: async (username) => {
+        try {
+            const response = await api.get(`/users/username/${username}`);
+            return response.data;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    },
+
+    updateProfile: async (userId, formData) => {
+        const response = await api.put('/auth/profile/edit', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        });
+
+        if (response.data) localStorage.setItem('user', JSON.stringify(response.data));
+        return response.data;
     }
 };
-/*
-export const 기능1번 = () => {
-
-}
-const 기능2번 = {
-    회원가입기능: () => {
-
-    },
-    로그인기능: () => {
-
-    }
-}
-
-export default 기능2번;
-*/
 
 export default apiService;

@@ -18,7 +18,7 @@
         WHERE user_id = #{userId}
     </select>
 
-    <select id="selectUserByUsername" parameterType="User" resultType="String">
+    <select id="selectUserNameByUsername" parameterType="User" resultType="String">
         SELECT user_name
         FROM users
         WHERE user_name = #{userName}
@@ -36,6 +36,21 @@
         WHERE user_password = #{userPassword}
     </select>
 
+
+    <select id="searchUsersByUserName" parameterType="String" resultType="User">
+        SELECT user_id,  user_name, user_email, user_fullname, user_avatar
+        FROM users
+        WHERE user_name LIKE CONCAT('%', #{userName}, '%')
+        ORDER BY user_name
+        LIMIT 10
+    </select>
+
+    <select id="selectUserByUserNameExact" parameterType="String" resultType="User">
+        SELECT  user_id,  user_name, user_email, user_fullname, user_avatar
+        FROM users
+        WHERE user_name = #{userName}
+    </select>
+
     <insert id="insertUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
         INSERT INTO users(user_name, user_email, user_password, user_fullname, user_avatar)
         VALUES (#{userName}, #{userEmail}, #{userPassword}, #{userFullname}, #{userAvatar})
@@ -47,7 +62,7 @@
             user_email    = #{userEmail},
             user_fullname = #{userFullname},
             user_avatar   = #{userAvatar},
-            updated_at    = CURRENT_TIME
+            updated_at    = NOW()
         WHERE user_id = #{userId}
     </update>
 

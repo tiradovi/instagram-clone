@@ -12,16 +12,6 @@ import java.util.Date;
 
 /**
  * JWT 토큰 생성 및 검증 유틸리티
- * JwtUtil = 디지털 학생증 발급기
- * <p>
- * secretKeyString : 위조를 방지하기 위한 학교만의 비밀 도장 낙인
- * expirationTime : 24시간의 유효기간
- * <p>
- * getSigningKey() : 학교 비밀 도장을 꺼내 준비하는 과정 (secret에서 작성한 문자열을 실제 도장으로 변환)
- * generateToken() : 학생증 만들기(로그 있을 때 24시간 유효한 기간제 학생증)
- * getUserIdFromToken() : 학생증에서 학번 읽기
- * getUserEmailFromToken() : 학생증에서 이메일 읽기
- * validateToken() : 학생증이 가짜인지 진짜인지 확인(API 요청시 진실된 학생증인지 확인 유무)
  */
 @Component
 public class JwtUtil {
@@ -38,7 +28,6 @@ public class JwtUtil {
 
     /**
      * JWT 토큰 생성
-     * 토큰의 형태는 sdagsadgiwegnzxczxcbiowe 와 같은 형식
      */
     public String generateToken(int userId, String userEmail) {
         Date now = new Date();

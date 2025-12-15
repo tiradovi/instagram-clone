@@ -23,7 +23,6 @@ src/main/resources/mapper/
 ├── LikeMapper.xml
 ├── StoryMapper.xml
 └── FollowMapper.xml
-
 ```
 
 ---
@@ -127,3 +126,46 @@ src/main/resources/mapper/
 | `LikeMapper.xml` | 좋아요(Like) 관련 **SQL 정의** |
 | `StoryMapper.xml` | 스토리(Story) 관련 **SQL 정의** |
 | `FollowMapper.xml` | 팔로우(Follow) 관련 **SQL 정의** |
+
+---
+# 트러블 슈팅
+
+# 📌 Story ID 직접 삽입으로 인한 INSERT 오류
+
+## 문제점
+
+MyBatis에서 stories 테이블에 데이터 INSERT시 useGeneratedKeys로 PK가 정상적으로 매핑되지 않는 문제가 발생했습니다.
+````
+Duplicate entry '0' for key 'PRIMARY'
+````
+
+## 원인
+INSERT 구문에서 자동 증가(primary key)로 관리되는 story_id를 직접 넣고 있었습니다.
+
+```xml
+<insert id="insertStory" parameterType="Story" useGeneratedKeys="true" keyProperty="storyId" keyColumn="story_id">
+    INSERT INTO stories(story_id, user_id, story_image, created_at, expires_at)
+    VALUES (#{storyId}, #{userId}, #{storyImage}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '24 hours');
+</insert>
+```
+## 문제 발생 이유
+story_id는 AUTO_INCREMENT / SERIAL / IDENTITY로 자동 생성해야 합니다.
+하지만 개발자가 직접 값을 넣을 경우 INT값이므로 0이 들어가고 이미 존재하는 ID를 넣으면 PRIMARY KEY 충돌 하여 MyBatis의 useGeneratedKeys가 작동하지 않음
+즉, PK를 수동 입력해 자동 증가 로직이 깨지는 문제가 발생했습니다.
+
+## 변경 후 코드
+```xml
+<insert id="insertStory" parameterType="Story" useGeneratedKeys="true" keyProperty="storyId" keyColumn="story_id">
+    INSERT INTO stories(user_id, story_image, created_at, expires_at)
+    VALUES (#{userId}, #{storyImage}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '24 hours')
+</insert>
+```
+
+## 결과
+* Story 업로드 정상 동작
+* 자동 PK 생성 기능 정상화
+* MyBatis에서 storyId 값 자동 수신 성공
+
+## 요약
+자동 증가되어야 하는 story_id를 INSERT 시 직접 전달한 것이 문제의 원인이었습니다.
+해당 필드를 제거해 DB 자동 생성 방식으로 되돌림으로써 PK 충돌 문제 해결 + useGeneratedKeys 정상 동작이 이루어졌습니다.

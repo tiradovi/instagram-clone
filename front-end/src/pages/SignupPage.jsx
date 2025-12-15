@@ -9,18 +9,33 @@
 // - 입력값 검증 (이메일 형식, 사용자명 규칙, 비밀번호 길이)
 // ============================================
 
-import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
 import apiService from '../service/apiService';
 
 const SignupPage = () => {
+    const location = useLocation();
+    console.log("kakao email : ", location.state?.email);
+    console.log("kakao email : ", location.state);
+    const navigate = useNavigate();
+
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const navigate = useNavigate();
+    const [isKakaoSignup, setIsKakaoSignup] = useState(false);
+
+    useEffect(() => {
+        if (location.state?.email) {
+            setEmail(location.state.email);
+            setUsername(location.state.name);
+            setFullName(location.state.fullName);
+            setIsKakaoSignup(true)
+        }
+    }, [location.state]);
+
 
     // TODO: handleSignup 함수를 작성하세요
     // 1. 입력값 검증 (모든 필드가 비어있는지 확인)
@@ -33,21 +48,26 @@ const SignupPage = () => {
     // 8. 실패 시: alert로 에러 메시지 표시 (409: 중복, 400: 잘못된 입력)
     // 9. finally: loading을 false로 설정
     const handleSignup = async () => {
+        // TODO: 함수를 완성하세요
+
         try {
             const response = await apiService.signup(username, email, password, fullName);
-            alert("회원가입 완료");
+
+            alert("회원가입이 완료되었습니다. 로그인해주세요.");
             navigate("/login");
         } catch (error) {
-            let errorMessage = '회원가입 실패';
+            let errorMessage = '회원가입에 실패했습니다.';
 
             if (error.response && error?.message) {
                 errorMessage = error.response.data.message;
             } else if (error.response?.status === 409) {
-                errorMessage = '이미 사용중인 사용자 이름 또는 이메일 입니다.';
+                errorMessage = '이미 사용 중인 사용자 이름 또는 이메일입니다.';
             } else if (error.response?.status === 400) {
-                errorMessage = '잘못된 입력입니다.'
+                errorMessage = '입력 정보를 확인해주세요.';
             }
             alert(errorMessage);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -90,7 +110,7 @@ const SignupPage = () => {
                             <path
                                 d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                         </svg>
-                        SNS로 로그인
+                        SNS으로 로그인
                     </button>
 
                     <div className="divider">
@@ -108,47 +128,49 @@ const SignupPage = () => {
                             onChange={(e) => setEmail(e.target.value)}
                             onKeyPress={handleKeyPress}
                             autoComplete="email"
+                            disabled={isKakaoSignup}
                         />
-
-                        <input
-                            className="login-input"
-                            type="text"
-                            placeholder="성명"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            autoComplete="name"
+                        <input className="login-input"
+                               type="text"
+                               placeholder="성명"
+                               value={fullName}
+                               onChange={(e) => setFullName(e.target.value)}
+                               onKeyPress={handleKeyPress}
+                               autoComplete="name"
+                               disabled={isKakaoSignup}
                         />
-
-                        <input
-                            className="login-input"
-                            type="text"
-                            placeholder="사용자 이름"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            autoComplete="username"
+                        <input className="login-input"
+                               type="text"
+                               placeholder="사용자 이름"
+                               value={username}
+                               onChange={(e) => setUsername(e.target.value)}
+                               onKeyPress={handleKeyPress}
+                               autoComplete="username"
+                               disabled={isKakaoSignup}
                         />
+                        {!isKakaoSignup && (
+                            <input className="login-input"
+                                   type="password"
+                                   placeholder="비밀번호"
+                                   value={password}
+                                   onChange={(e) => setPassword(e.target.value)}
+                                   onKeyPress={handleKeyPress}
+                                   autoComplete="new-password"
+                            />
+                        )}
+                        <button className="login-button"
+                                onClick={(e) => handleSignup(e)}
+                                disabled={loading}
+                        >
+                            {loading === false ?
+                                (
+                                    <div style={{opacity: '0.7', cursor: 'not-allowed'}}
+                                    >
+                                        가입
+                                    </div>
 
-                        <input
-                            className="login-input"
-                            type="password"
-                            placeholder="비밀번호"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            onKeyPress={handleKeyPress}
-                            autoComplete="new-password"
-                        />
-
-
-                        <button className="login-button" onClick={handleSignup} disabled={loading}
-                                style={loading ? {opacity: '0.7', cursor: 'not-allowed'} : {
-                                    opacity: '1',
-                                    cursor: 'pointer'
-                                }}>
-                            {loading ? "가입 중..." : "가입"}
+                                ) : '가입'}
                         </button>
-
                     </div>
 
                     <p style={{

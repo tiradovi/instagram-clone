@@ -18,7 +18,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/stories")
+@RequestMapping("/api/stories")
 public class StoryController {
     private final StoryService storyService;
     private final JwtUtil jwtUtil;
@@ -56,10 +56,25 @@ public class StoryController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getStory(@PathVariable("userId") int userId) {
         try {
-            Story story = storyService.getStoriesByUserId(userId);
+            List<Story> story = storyService.getStoriesByUserId(userId);
             return ResponseEntity.ok(story);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("스토리 조회 실패: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{storyId}")
+    public ResponseEntity<?> deleteStory(@RequestHeader("Authorization") String authHeader,
+                                         @PathVariable("storyId") int storyId) {
+        try {
+            String jwtToken = authHeader.substring(7);
+            int currentUserId = jwtUtil.getUserIdFromToken(jwtToken);
+
+            storyService.deleteStory(currentUserId, storyId);
+
+            return ResponseEntity.ok().body(true);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("스토리 삭제 실패 :" + e.getMessage());
         }
     }
 
