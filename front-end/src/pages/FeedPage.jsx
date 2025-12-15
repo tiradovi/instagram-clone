@@ -147,7 +147,8 @@ const FeedPage = () => {
                                             onClick={() => toggleLike(post.postId, post.isLiked)}
                                             fill={post.isLiked ? "#ed4956" : "none"}
                                         />
-                                        <MessageCircle className="action-icon"/>
+                                        <MessageCircle className="action-icon"
+                                                       onClick={() => navigate(`/post/detail/${post.postId}`)}/>
                                         <Send className="action-icon"/>
                                     </div>
                                     <Bookmark className="action-icon"/>

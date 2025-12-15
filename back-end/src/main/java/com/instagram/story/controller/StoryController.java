@@ -1,4 +1,4 @@
-package com.instagram.story.contoller;
+package com.instagram.story.controller;
 
 
 import com.instagram.common.util.JwtUtil;

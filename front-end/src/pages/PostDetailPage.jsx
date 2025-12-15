@@ -1,36 +1,106 @@
 import React, {useEffect, useState} from 'react';
-import {useParams, useNavigate} from 'react-router-dom';
-import {Heart, MessageCircle, Send, Bookmark, MoreHorizontal} from 'lucide-react';
-import apiService from '../service/apiService';
-import {getImageUrl} from '../service/commonService';
-import MentionText from '../components/MentionText';
-import Header from '../components/Header';
-import {useAuth} from '../provider/AuthContext';
+import {Heart, MessageCircle, Send, Bookmark, Trash2, Pencil} from 'lucide-react';
+import {formatDate, getImageUrl} from '../service/commonService';
+
+import Header from "../components/Header";
+import {useNavigate, useParams} from "react-router-dom";
+import apiService from "../service/apiService";
+import PostOptionMenu from "../components/PostOptionMenu";
+import MentionText from "../components/MentionText";
+import {useAuth} from "../provider/AuthContext";
 
 const PostDetailPage = () => {
     const {postId} = useParams();
+    const [post, setPost] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [selectedPost, setSelectedPost] = useState(null);
+    const [comments, setComments] = useState([]);
+    const [commentCount, setCommentCount] = useState(0);
+    const [commentText, setCommentText] = useState('');
+
     const navigate = useNavigate();
     const {user} = useAuth();
 
-    const [post, setPost] = useState(null);
-    const [loading, setLoading] = useState(true);
-
     useEffect(() => {
-        loadPostData();
+        loadFeedData();
+        loadComments();
     }, [postId, navigate]);
 
-    const loadPostData = async () => {
+    const loadFeedData = async () => {
+        setLoading(true);
         try {
-            const data = await apiService.getPostByPostId(postId);
-            setPost(data);
+            const postData = await apiService.getPostById(postId);
+            setPost(postData);
         } catch (err) {
-            alert('게시물을 불러오는데 실패했습니다.');
-            navigate('/feed');
+            alert("포스트 피드를 불러오는데 실패했습니다.")
         } finally {
             setLoading(false);
         }
+
+    };
+    const loadComments = async () => {
+        try {
+            const data = await apiService.getComments(postId);
+            setComments(data.comments || []);
+            setCommentCount(data.commentCount || 0);
+        } catch (err) {
+            console.error(err);
+            setComments([]);
+            setCommentCount(0);
+        }
     };
 
+    const handleCommentSubmit = async () => {
+        if (!commentText.trim()) return;
+
+        try {
+            await apiService.createComment(postId, commentText);
+
+            setCommentText('');
+            loadComments();
+        } catch (err) {
+            alert("댓글 작성에 실패했습니다.");
+        }
+    };
+    const handleDeleteComment = async (commentId) => {
+        try {
+            await apiService.deleteComment(commentId);
+            loadComments();
+        } catch (err) {
+            alert("댓글 삭제에 실패했습니다.");
+        }
+    };
+    const handelUpdateComment = async (commentId) => {
+
+    }
+
+    const handleShare = async () => {
+        const shareUrl = `${window.location.origin}/post/${post.postId}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `${post.userName}의 게시물`,
+                    text: post.postCaption,
+                    url: shareUrl
+                });
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    copyToClipboard(shareUrl);
+                }
+            }
+        } else {
+            copyToClipboard(shareUrl);
+
+        }
+    };
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('링크가 클립보트에 복사되었습니다.');
+        }).catch(() => {
+            alert("링크 복사에 실패했습니다.");
+        })
+    };
     const toggleLike = async () => {
         const isLiked = post.isLiked;
 
@@ -43,50 +113,64 @@ const PostDetailPage = () => {
         try {
             if (isLiked) await apiService.removeLike(post.postId);
             else await apiService.addLike(post.postId);
-        } catch {
-            alert('좋아요 처리에 실패했습니다.');
+        } catch (err) {
+            alert("좋아요 처리에 실패했습니다.");
+            loadFeedData();
         }
     };
 
-    if (loading) {
-        return <div style={{padding: '2rem', textAlign: 'center'}}>로딩중...</div>;
+    const deletePost = async (postId) => {
+        try {
+            await apiService.deletePost(postId);
+            setPost(post.filter(p => p.postId !== postId));
+            setSelectedPost(null);
+            alert("게시물이 삭제되었습니다.");
+        } catch (err) {
+            alert("게시물 삭제에 실패했습니다.");
+        }
     }
 
-    if (!post) return null;
+    if (loading || !post) {
+        return (
+            <div className="feed-container">
+                <div style={{padding: '2rem', textAlign: 'center'}}>
+                    로딩 중...
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="feed-container">
             <Header/>
 
             <div className="feed-content">
-                <article className="post-card">
+                <article key={post.postId} className="post-card">
                     <div className="post-header">
                         <div className="post-user-info">
-                            <img
-                                src={getImageUrl(post.userAvatar)}
-                                className="post-user-avatar"
-                                alt="user"
+                            <img src={getImageUrl(post.userAvatar)}
+                                 className="post-user-avatar"
+                                 style={{cursor: 'pointer'}}
+                                 onClick={() => navigate(`/user/feed/${post.userId}`)}
                             />
-                            <span className="post-username">
-                                {post.userName}
-                            </span>
+                            <span className="post-username">{post.userName}</span>
                         </div>
-                        <MoreHorizontal className="post-more-icon"/>
+                        <PostOptionMenu
+                            post={post}
+                            currentUserId={user.userId}
+                            onDelete={deletePost}/>
                     </div>
 
-                    <img
-                        src={post.postImage}
-                        className="post-image"
-                        alt="post"
+                    <img src={post.postImage}
+                         className="post-image"
                     />
-
                     <div className="post-content">
                         <div className="post-actions">
                             <div className="post-actions-left">
                                 <Heart
                                     className={`action-icon like-icon ${post.isLiked ? 'liked' : ''}`}
-                                    fill={post.isLiked ? '#ed4956' : 'none'}
-                                    onClick={toggleLike}
+                                    onClick={() => toggleLike(post.postId, post.isLiked)}
+                                    fill={post.isLiked ? "#ed4956" : "none"}
                                 />
                                 <MessageCircle className="action-icon"/>
                                 <Send className="action-icon"/>
@@ -99,14 +183,89 @@ const PostDetailPage = () => {
                         </div>
 
                         <div className="post-caption">
-                            <span className="post-caption-username">
-                                {post.userName}
-                            </span>
+                            <span className="post-caption-username">{post.userName}</span>
                             <MentionText text={post.postCaption}/>
                         </div>
 
-                        <div className="post-time">
-                            {post.createdAt || '방금 전'}
+
+                        <div className="comments-section">
+                            {comments.length === 0 ? (
+                                <div className="comments-empty">
+                                    첫 번째 댓글을 남겨보세요!
+                                </div>
+                            ) : (
+                                comments.map(comment => (
+                                    <div key={comment.commentId} className="comment-item">
+                                        <img
+                                            src={getImageUrl(comment.userAvatar)}
+                                            className="comment-avatar"
+                                            alt="avatar"
+                                        />
+
+                                        <div className="comment-content">
+                                            <div className="comment-text">
+                                                    <span className="comment-username">
+                                                        {comment.userName}
+                                                    </span>
+                                                <span className="comment-time">
+                                                    {formatDate(comment.createdAt)}
+                                                </span>
+                                                <div>
+                                                    <MentionText text={comment.commentContent}/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {user.userId !== comment.userId && (
+                                            <Heart
+                                                size={24}
+                                                className="comment-btn"
+
+                                            />
+                                        )}
+                                        {user.userId === comment.userId && (
+                                            <Pencil
+                                                size={24}
+                                                className="comment-btn"
+                                                onClick={() => handelUpdateComment(comment.commentId)}
+                                            />
+                                        )}
+                                        {user.userId === comment.userId && (
+                                            <Trash2
+                                                size={24}
+                                                className="comment-btn"
+                                                onClick={() => handleDeleteComment(comment.commentId)}
+                                            />
+                                        )}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {commentCount > 0 && (
+                            <button className="post-comments-btn">
+                                댓글 {commentCount}개
+                            </button>
+                        )}
+
+                        <div className="comment-input-container">
+                            <input
+                                className="comment-input"
+                                placeholder="댓글을 작성해주세요."
+                                value={commentText}
+                                onChange={e => setCommentText(e.target.value)}
+                                onKeyDown={e => {
+                                    if (e.key === 'Enter') handleCommentSubmit();
+                                }}
+                            />
+                            <button
+                                className="comment-post-btn"
+                                disabled={!commentText.trim()}
+                                onClick={handleCommentSubmit}
+                                style={{opacity: commentText.trim() ? 1 : 0.3}}
+                            >
+                                게시
+                            </button>
                         </div>
                     </div>
                 </article>

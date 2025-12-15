@@ -1,4 +1,4 @@
-package com.instagram.post.contoller;
+package com.instagram.post.controller;
 
 import com.instagram.common.util.AuthUtil;
 import com.instagram.post.model.dto.Post;
@@ -41,12 +41,12 @@ public class PostController {
         return ResponseEntity.ok(postService.getAllPosts(currentUserId));
     }
 
-    @GetMapping("/userId/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<List<Post>> getPostsByUserId(@PathVariable int userId) {
         return ResponseEntity.ok(postService.getPostsByUserId(userId));
     }
 
-    @GetMapping("/postId/{postId}")
+    @GetMapping("/post/{postId}")
     public ResponseEntity<Post> getPostById(@RequestHeader("Authorization") String authHeader, @PathVariable int postId) {
         int currentUserId = authUtil.getCurrentUserId(authHeader);
         return ResponseEntity.ok(postService.getPostById(postId, currentUserId));
@@ -57,8 +57,6 @@ public class PostController {
         postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }
-
-    /* ================= 좋아요 ================= */
 
     @PostMapping("/{postId}/like")
     public ResponseEntity<Void> addLike(

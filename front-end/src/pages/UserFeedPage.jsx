@@ -26,8 +26,8 @@ const UserFeedPage = () => {
     const loadUserFeed = async () => {
         setLoading(true);
         try {
-            const profile = await apiService.getUserByUserId(userId);
-            const userPosts = await apiService.getPostByUserId(userId);
+            const profile = await apiService.getUserById(userId);
+            const userPosts = await apiService.getPostsByUserId(userId);
 
             setProfileUser(profile);
             setPosts(userPosts);

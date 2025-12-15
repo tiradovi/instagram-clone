@@ -7,26 +7,21 @@ import java.util.List;
 
 @Mapper
 public interface PostMapper {
-    /* ================= 조회 ================= */
 
-    // 피드 전체 조회 (좋아요 여부 포함)
+    // 게시물 전체 조회
     List<Post> selectAllPosts(int currentUserId);
 
-    // 게시물 단건 조회
+    // 특정 게시물 조회
     Post selectPostByPostId(int postId, int currentUserId);
 
     // 특정 유저 게시물 조회
     List<Post> selectPostsByUserId(int userId);
 
-
-    /* ================= 게시물 ================= */
-
+    // 게시물 생성
     int insertPost(Post post);
 
+    // 게시물 삭제
     int deletePost(int postId);
-
-
-    /* ================= 좋아요 ================= */
 
     int insertLike(int postId, int userId);
 

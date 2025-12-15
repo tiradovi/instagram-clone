@@ -84,14 +84,14 @@ const apiService = {
     },
 
     // 특정 유저 게시물 조회
-    getPostByUserId: async (userId) => {
-        const response = await api.get(`/posts/userId/${userId}`);
+    getPostsByUserId: async (userId) => {
+        const response = await api.get(`/posts/user/${userId}`);
         return response.data;
     },
 
     // 특정 게시물 조회
-    getPostByPostId: async (postId) => {
-        const response = await api.get(`/posts/postId/${postId}`);
+    getPostById: async (postId) => {
+        const response = await api.get(`/posts/post/${postId}`);
         return response.data;
     },
 
@@ -109,14 +109,13 @@ const apiService = {
         return response.data;
     },
 
-    // TODO: 게시물 삭제
-    // DELETE /posts/:postId
+    // 게시물 삭제
     deletePost: async (postId) => {
-        // TODO: API 호출을 완성하세요
         const response = await api.delete(`/posts/${postId}`);
+        return response.data;
     },
 
-    // ===== 좋아요 API =====
+    // ===== 좋아요 API ===== //
 
     // 좋아요 추가
     addLike: async (postId) => {
@@ -130,36 +129,47 @@ const apiService = {
         return response.data;
     },
 
-    // ===== 댓글 API =====
-    // TODO: 댓글 목록 조회
-    // GET /posts/:postId/comments
+    // ===== 댓글 API =====//
+
+    // 특정 게시물 댓글 조회
     getComments: async (postId) => {
-        // TODO: API 호출을 완성하세요
+        const response = await api.get(`/posts/${postId}/comments`);
+        return response.data;
     },
 
-    // TODO: 댓글 작성
-    // POST /posts/:postId/comments
-    // body: { commentContent }
+    // 댓글 작성
     createComment: async (postId, commentContent) => {
-        // TODO: API 호출을 완성하세요
+        const response = await api.post(`/posts/${postId}/comments`, commentContent);
+        return response.data;
     },
 
-    // TODO: 댓글 삭제
-    // DELETE /comments/:commentId
+    // 댓글 삭제
     deleteComment: async (commentId) => {
-        // TODO: API 호출을 완성하세요
+        const response = await api.delete(`/comments/${commentId}`);
+        return response.data;
+    },
+
+    // 댓글 수정
+    updateComment: async (commentId) => {
+        const response = await api.put(`/posts/${commentId}`);
+        return response.data;
     },
 
     // ===== 스토리 API =====
 
+    // 모든 스토리 조회
     getStories: async () => {
         const response = await api.get('/stories');
         return response.data;
     },
-    getStory: async (userId) => {
+
+    // 특정 유저 스토리 조회
+    getStoriesByUserId: async (userId) => {
         const response = await api.get(`/stories/user/${userId}`);
         return response.data;
     },
+
+    // 스토리 생성
     createStory: async (storyImage) => {
         const formData = new FormData();
         formData.append('storyImage', storyImage);
@@ -171,6 +181,8 @@ const apiService = {
         });
         return response.data;
     },
+
+    // 스토리 삭제
     deleteStory: async (storyId) => {
         const response = await api.delete(`/stories/${storyId}`);
         return response.data;
@@ -178,8 +190,8 @@ const apiService = {
 
     // ===== 사용자 API =====
 
-
-    getUserByUserId: async (userId) => {
+    // 특정 유저 조회
+    getUserById: async (userId) => {
         try {
             const response = await api.get(`/users/userId/${userId}`);
             return response.data;
@@ -190,6 +202,7 @@ const apiService = {
 
     },
 
+    // 검색어를 포함한 유저들 조회
     searchUsers: async (query) => {
         if (!query || query.isEmpty) return [];
         try {
@@ -201,6 +214,7 @@ const apiService = {
         }
     },
 
+    // 유저 이름으로 유저 조회
     getUserByUsername: async (username) => {
         try {
             const response = await api.get(`/users/username/${username}`);
@@ -211,6 +225,7 @@ const apiService = {
         }
     },
 
+    // 유저 정보 변경
     updateProfile: async (userId, formData) => {
         const response = await api.put('/auth/profile/edit', formData, {
             headers: {

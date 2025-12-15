@@ -13,10 +13,9 @@ const StoryDetailPage = () => {
     const [stories, setStories] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState('');
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const {user} = useAuth();
-
+    const currentStory = stories[currentIndex];
     useEffect(() => {
         loadStoryData()
     }, [userId]);
@@ -25,7 +24,7 @@ const StoryDetailPage = () => {
     const loadStoryData = async () => {
         try {
             setLoading(true);
-            const data = await apiService.getStory(userId);
+            const data = await apiService.getStoriesByUserId(userId);
             console.log(data);
 
             if (Array.isArray(data) && data.length > 0) {
@@ -47,15 +46,15 @@ const StoryDetailPage = () => {
         if (currentIndex < stories.length - 1) {
             setCurrentIndex(prev => prev + 1);
             setProgress(0);
-        } else { //마지막 스토리면 창 닫고 피드로 이동 -> 다음 유저 스토리 보기
+        } else {
             navigate("/feed");
         }
     }
-    // 이전 스토리로 이동 현재 번호에서 -1씩 감소
+    // 이전 스토리로 이동
     const goToPrevStory = () => {
         if (currentIndex > 0) {
             setCurrentIndex(prev => prev - 1);
-            setProgress(0); // 다음 게시물로 넘어가거나 이전 게시물로 넘어가면 프로그래스바 처음부터 시작!
+            setProgress(0);
         } else {
             navigate("/feed");
         }
@@ -95,9 +94,7 @@ const StoryDetailPage = () => {
         }
     }
 
-    if (loading) return <div>로딩중</div>;
-
-    const currentStory = stories[currentIndex];
+    if (loading || !currentStory) return <div>로딩중</div>;
 
     const handleDeleteStory = async () => {
         try {

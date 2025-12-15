@@ -48,7 +48,6 @@ const Header = ({
                             />
                             <User className="header-icon"
                                   onClick={() => navigate(`/user/feed/${user.userId}`)}/>
-
                             <Settings
                                 size={20}
                                 className="profile-settings-icon"
