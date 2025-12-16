@@ -14,6 +14,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleServerError(Exception e) {
-        return ResponseEntity.internalServerError().body("서버 오류");
+        System.err.println("========== SERVER ERROR ==========");
+        System.err.println("Error message: " + e.getMessage());
+        e.printStackTrace();
+        System.err.println("==================================");
+
+        return ResponseEntity.internalServerError()
+                .body("서버 오류: " + e.getMessage());
     }
 }
