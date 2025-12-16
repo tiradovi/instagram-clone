@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_BASE_URL = 'http://localhost:9000/api';
+export const API_BASE_URL = 'http://15.164.170.48:9000/api';
 
 // axios 인스턴스를 생성
 const api = axios.create({
