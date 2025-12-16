@@ -1,14 +1,12 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "build" }
-    }
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "build" } }
+  ],
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "http://15.164.170.48:9000/$1" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "http://15.164.170.48:9000/$1" },
     { "src": "/manifest.json", "dest": "/manifest.json" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
