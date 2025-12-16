@@ -4,5 +4,15 @@
       "source": "/api/(.*)",
       "destination": "http://15.164.170.48:9000/$1"
     }
+  ],
+  "routes": [
+    {
+      "src": "/manifest.json",
+      "dest": "/manifest.json"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
