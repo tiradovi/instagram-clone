@@ -1,63 +1,31 @@
 package com.instagram.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
     @Value("${file.profile.upload.path}")
     private String profileFileUploadPath;
+
     @Value("${file.story.upload.path}")
     private String storyFileUploadPath;
-    @Value("${file.post.upload.path}")
-    private  String postFileUploadPath;
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")  // /api/** 대신 /** 사용
-                        .allowedOrigins(
-                                "http://localhost:57007",
-                                "http://localhost:3000",
-                                "https://instagram-clone-78izw8o77-tirdovis-projects.vercel.app",
-                                "https://*.vercel.app"  // 모든 Vercel 배포 허용
-                        )
-                        .allowCredentials(true)
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                        .allowedHeaders("*")
-                        .exposedHeaders("*");
 
-                registry.addMapping("/ws/**")
-                        .allowedOrigins(
-                                "http://localhost:57007",
-                                "http://localhost:3000",
-                                "https://instagram-clone-78izw8o77-tirdovis-projects.vercel.app",
-                                "https://*.vercel.app"
-                        )
-                        .allowCredentials(true)
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                        .allowedHeaders("*");
-            }
-        };
-    }
+    @Value("${file.post.upload.path}")
+    private String postFileUploadPath;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/profile_images/**")
+                .addResourceLocations("file:" + profileFileUploadPath + "/");
 
-        registry.addResourceHandler("/profile_images/**").addResourceLocations("file:" + profileFileUploadPath + "/");
+        registry.addResourceHandler("/story_images/**")
+                .addResourceLocations("file:" + storyFileUploadPath + "/");
 
-        registry.addResourceHandler("/story_images/**").addResourceLocations("file:" + storyFileUploadPath + "/");
-
-        registry.addResourceHandler("/post_images/**").addResourceLocations("file:" + postFileUploadPath + "/");
-
-
-
+        registry.addResourceHandler("/post_images/**")
+                .addResourceLocations("file:" + postFileUploadPath + "/");
     }
 }
