@@ -1,14 +1,4 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "front-end/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "front-end/build"
-      }
-    }
-  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "http://15.164.170.48:9000/$1" }
   ],
@@ -16,4 +6,5 @@
     { "src": "/manifest.json", "dest": "/manifest.json" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
+
 }
