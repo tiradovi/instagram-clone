@@ -26,6 +26,11 @@
       "src": "/logo(.*).png",
       "dest": "/logo$1.png"
     },
+
+    {
+      "src": "/api/(.*)",
+      "dest": "http://15.164.170.48:9000/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "/index.html"
