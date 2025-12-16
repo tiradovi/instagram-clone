@@ -17,20 +17,30 @@ public class WebConfig implements WebMvcConfigurer {
     private String storyFileUploadPath;
     @Value("${file.post.upload.path}")
     private  String postFileUploadPath;
-
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:57007", "http://localhost:3000")
+                registry.addMapping("/**")  // /api/** 대신 /** 사용
+                        .allowedOrigins(
+                                "http://localhost:57007",
+                                "http://localhost:3000",
+                                "https://instagram-clone-78izw8o77-tirdovis-projects.vercel.app",
+                                "https://*.vercel.app"  // 모든 Vercel 배포 허용
+                        )
                         .allowCredentials(true)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        .exposedHeaders("*");
 
                 registry.addMapping("/ws/**")
-                        .allowedOrigins("http://localhost:57007", "http://localhost:3000")
+                        .allowedOrigins(
+                                "http://localhost:57007",
+                                "http://localhost:3000",
+                                "https://instagram-clone-78izw8o77-tirdovis-projects.vercel.app",
+                                "https://*.vercel.app"
+                        )
                         .allowCredentials(true)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                         .allowedHeaders("*");
