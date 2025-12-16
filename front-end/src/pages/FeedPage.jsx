@@ -12,7 +12,7 @@ const FeedPage = () => {
     const {user: authUser} = useAuth();
     const [posts, setPosts] = useState([]);
     const [stories, setStories] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [selectedPost, setSelectedPost] = useState(null);
 
     const navigate = useNavigate();
@@ -139,6 +139,7 @@ const FeedPage = () => {
                             <img src={post.postImage}
                                  className="post-image"
                                  onClick={() => navigate(`/post/detail/${post.postId}`)}/>
+
                             <div className="post-content">
                                 <div className="post-actions">
                                     <div className="post-actions-left">
