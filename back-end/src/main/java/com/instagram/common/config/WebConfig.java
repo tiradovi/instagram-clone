@@ -1,7 +1,9 @@
 package com.instagram.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -9,23 +11,46 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     @Value("${file.profile.upload.path}")
-    private String profileFileUploadPath;
+    private String profileUploadPath;
 
     @Value("${file.story.upload.path}")
-    private String storyFileUploadPath;
+    private String storyUploadPath;
 
     @Value("${file.post.upload.path}")
-    private String postFileUploadPath;
+    private String postUploadPath;
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                // REST API CORS 설정
+                registry.addMapping("/api/**")
+                        .allowedOrigins("http://localhost:3001","http://localhost:3000","instagram-clone-eight-sepia.vercel.app")
+                        .allowCredentials(true)
+                        .allowedMethods("GET","POST","PUT","DELETE","PATCH","OPTIONS")
+                        .allowedHeaders("*");
+
+                // WebSocket CORS 설정 추가
+                registry.addMapping("/ws/**")
+                        .allowedOrigins("http://localhost:3001","http://localhost:3000","instagram-clone-eight-sepia.vercel.app")
+                        .allowCredentials(true)
+                        .allowedMethods("GET","POST","PUT","DELETE","PATCH","OPTIONS")
+                        .allowedHeaders("*");
+            }
+        };
+    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/profile_images/**")
-                .addResourceLocations("file:" + profileFileUploadPath + "/");
+                .addResourceLocations("file:"+profileUploadPath+"/");
 
         registry.addResourceHandler("/story_images/**")
-                .addResourceLocations("file:" + storyFileUploadPath + "/");
+                .addResourceLocations("file:"+storyUploadPath + "/");
 
         registry.addResourceHandler("/post_images/**")
-                .addResourceLocations("file:" + postFileUploadPath + "/");
+                .addResourceLocations("file:"+postUploadPath + "/");
+
     }
 }
