@@ -71,7 +71,6 @@ const SignupPage = () => {
         }
     };
 
-    // TODO: Enter 키 입력 시 handleSignup 호출하는 함수 작성
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             handleSignup();
@@ -164,12 +163,9 @@ const SignupPage = () => {
                         >
                             {loading === false ?
                                 (
-                                    <div style={{opacity: '0.7', cursor: 'not-allowed'}}
-                                    >
-                                        가입
-                                    </div>
+                                    <div style={{opacity: '0.7', cursor: 'not-allowed'}}>가입 </div>
 
-                                ) : '가입'}
+                                ) : <div style={{opacity: '1', cursor: 'pointer'}}>가입 </div>}
                         </button>
                     </div>
 
