@@ -26,8 +26,12 @@ const SignupPage = () => {
 
 
     const handleSignup = async () => {
-        if (!username || !email || !password) {
+        if (!username || !email) {
             alert('모든 필드를 입력해주세요.');
+            return;
+        }
+        if (!isKakaoSignup && !password) {
+            alert('패스워드를 입력해주세요');
             return;
         }
 
