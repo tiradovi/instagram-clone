@@ -305,6 +305,7 @@ No static resource auth/login
 
 ## 요약
 
-Spring MVC의 요청 처리 흐름을 기반으로 문제를 분석하여,
-API 라우팅 오류를 구조적으로 해결했습니다.
+* Spring MVC의 요청 처리 흐름을 기반으로 문제를 분석하여,
+* API 라우팅 오류를 구조적으로 해결했습니다.
+
 ---
