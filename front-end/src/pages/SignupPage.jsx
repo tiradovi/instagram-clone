@@ -19,7 +19,6 @@ const SignupPage = () => {
     useEffect(() => {
         if (location.state?.email) {
             setEmail(location.state.email);
-            setUsername(location.state.name);
             setFullName(location.state.fullName);
             setIsKakaoSignup(true)
         }
@@ -27,7 +26,7 @@ const SignupPage = () => {
 
 
     const handleSignup = async () => {
-        if (!username || !email || !password || !fullName) {
+        if (!username || !email || !password) {
             alert('모든 필드를 입력해주세요.');
             return;
         }
@@ -149,7 +148,6 @@ const SignupPage = () => {
                                onChange={(e) => setUsername(e.target.value)}
                                onKeyPress={handleKeyPress}
                                autoComplete="username"
-                               disabled={isKakaoSignup}
                         />
                         {!isKakaoSignup && (
                             <input className="login-input"

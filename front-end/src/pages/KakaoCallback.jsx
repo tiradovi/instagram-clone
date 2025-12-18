@@ -37,8 +37,8 @@ const KakaoCallback = () => {
                 navigate("/signup", {
                     state: {
                         email: kakaoUser.userEmail,
-                        name: kakaoUser.userName,
-                        fullname: kakaoUser.userFullname,
+                        fullname: kakaoUser.userName,
+                        userName: kakaoUser.userFullname,
                     }
                 });
             }
