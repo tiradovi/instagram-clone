@@ -172,7 +172,7 @@ const PostDetailPage = () => {
                                     onClick={() => toggleLike(post.postId, post.isLiked)}
                                     fill={post.isLiked ? "#ed4956" : "none"}
                                 />
-                                <MessageCircle className="action-icon"/>
+                                <MessageCircle className="action-icon" onClick={handleShare}/>
                                 <Send className="action-icon"/>
                             </div>
                             <Bookmark className="action-icon"/>

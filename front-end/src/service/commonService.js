@@ -1,4 +1,4 @@
-import {API_BASE_URL} from "./apiService";
+
 const BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
 
 /**
@@ -12,7 +12,7 @@ export const getImageUrl = (path) => {
     if (path === 'default-avatar.jpg') return '/static/img/default-avatar.jpg';
     if (path === 'default-avatar.png') return '/static/img/default-avatar.jpg';
 
-    return `${API_BASE_URL}${path}`;
+    return `${BASE_URL}${path}`;
 };
 
 /**

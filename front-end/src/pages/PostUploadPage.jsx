@@ -54,12 +54,6 @@ const PostUploadPage = () => {
         if(loc) setLocation(loc);
     }
 
-    const avatarImage = user.userAvatar && user.userAvatar.trim() !== ''?
-        user.userAvatar : '/static/img/default-avatar.jpg';
-
-    const handleAvatarError = (e) => {
-        e.target.src ='/static/img/default-avatar.jpg';
-    }
 
     return (
         <div className="upload-container">
@@ -127,7 +121,6 @@ const PostUploadPage = () => {
                         <div className="upload-caption-content">
                             <img className="upload-user-avatar"
                                  src={getImageUrl(user.userAvatar)}
-                                 onError={handleAvatarError}
                             />
                             <div className="upload-caption-right">
                                 <div className="upload-username">

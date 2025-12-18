@@ -6,10 +6,11 @@ import Header from "../components/Header";
 import {getImageUrl} from "../service/commonService";
 import MentionText from "../components/MentionText";
 import {useAuth} from "../provider/AuthContext";
+import PostOptionMenu from "../components/PostOptionMenu";
 
 
 const FeedPage = () => {
-    const {user: authUser} = useAuth();
+    const {user} = useAuth();
     const [posts, setPosts] = useState([]);
     const [stories, setStories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -133,7 +134,10 @@ const FeedPage = () => {
                                     <img src={getImageUrl(post.userAvatar)} className="post-user-avatar"/>
                                     <span className="post-username">{post.userName}</span>
                                 </div>
-                                <MoreHorizontal className="post-more-icon"/>
+                                <PostOptionMenu
+                                    post={post}
+                                    currentUserId={user.userId}
+                                    onDelete={deletePost}/>
                             </div>
 
                             <img src={post.postImage}

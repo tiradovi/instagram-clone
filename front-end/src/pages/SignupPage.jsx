@@ -26,32 +26,48 @@ const SignupPage = () => {
     }, [location.state]);
 
 
-    // TODO: handleSignup 함수를 작성하세요
-    // 1. 입력값 검증 (모든 필드가 비어있는지 확인)
-    // 2. 이메일 형식 검증 (정규식 사용)
-    // 3. 사용자명 규칙 검증 (영문, 숫자, 밑줄, 마침표만 허용, 3-50자)
-    // 4. 비밀번호 길이 검증 (최소 6자)
-    // 5. loading을 true로 설정
-    // 6. apiService.signup(username, email, password, fullName) 호출
-    // 7. 성공 시: alert로 성공 메시지, /login으로 이동
-    // 8. 실패 시: alert로 에러 메시지 표시 (409: 중복, 400: 잘못된 입력)
-    // 9. finally: loading을 false로 설정
     const handleSignup = async () => {
+        if (!username || !email || !password || !fullName) {
+            alert('모든 필드를 입력해주세요.');
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert('올바른 이메일 형식이 아닙니다.');
+            return;
+        }
+
+        const usernameRegex = /^[a-zA-Z0-9._]{3,50}$/;
+        if (!usernameRegex.test(username)) {
+            alert('사용자명은 영문, 숫자, 밑줄(_), 마침표(.)만 사용 가능하며 3~50자여야 합니다.');
+            return;
+        }
+
+        if (password.length < 6) {
+            alert('비밀번호는 최소 6자 이상이어야 합니다.');
+            return;
+        }
+
+        setLoading(true);
 
         try {
-            const response = await apiService.signup(username, email, password, fullName);
+            await apiService.signup(username, email, password, fullName);
 
-            alert("회원가입이 완료되었습니다. 로그인해주세요.");
-            navigate("/login");
+            alert('회원가입이 완료되었습니다. 로그인해주세요.');
+            navigate('/login');
+
         } catch (error) {
             let errorMessage = '회원가입에 실패했습니다.';
 
-            if (error.response && error?.message) {
-                errorMessage = error.response.data.message;
-            } else if (error.response?.status === 409) {
-                errorMessage = '이미 사용 중인 사용자 이름 또는 이메일입니다.';
-            } else if (error.response?.status === 400) {
-                errorMessage = '입력 정보를 확인해주세요.';
+            if (error) {
+                if (error.status === 409) {
+                    errorMessage = '이미 사용 중인 사용자 이름 또는 이메일입니다.';
+                } else if (error.status === 400) {
+                    errorMessage = '입력 정보를 확인해주세요.';
+                } else if (error.response.data?.message) {
+                    errorMessage = error.response.data.message;
+                }
             }
             alert(errorMessage);
         } finally {
