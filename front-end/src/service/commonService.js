@@ -1,4 +1,4 @@
-import {API_BASE_URL} from "./apiService";
+export const API_BASE_URL ="https://15.165.59.151:9000"
 
 /**
  * 이미지 경로를 받아서 완전한 URL을 반환하는 함수

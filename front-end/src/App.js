@@ -22,7 +22,6 @@ function App() {
                 <Route path="/login" element={<LoginPage/>}/>
                 <Route path="/auth/kakao/callback" element={<KakaoCallback/>}/>
                 <Route path="/signup" element={<SignupPage/>}/>
-
                 <Route
                     path="/feed"
                     element={

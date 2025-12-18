@@ -34,12 +34,12 @@ public class JwtUtil {
         Date validity = new Date(now.getTime() + expirationTime);  // 현재시간 기준 + 24시간 유효기간 설정
 
         return Jwts.builder()
-                .subject(String.valueOf(userId)) // 학번
-                .claim("email", userEmail)  // 이메일
-                .issuedAt(now)  // 발급일
-                .expiration(validity) // 도장 만료일
-                .signWith(getSigningKey()) // 도장 찍기
-                .compact(); // 학생증 완성
+                .subject(String.valueOf(userId))
+                .claim("email", userEmail)
+                .issuedAt(now)
+                .expiration(validity)
+                .signWith(getSigningKey())
+                .compact();
     }
 
     /**

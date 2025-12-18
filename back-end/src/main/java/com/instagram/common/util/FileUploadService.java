@@ -50,12 +50,11 @@ public class FileUploadService {
     /**
      * 스토리 이미지 업로드
      *
-     * @param file      업로드할 상품 이미지 파일
+     * @param file      업로드할 스토리 이미지 파일
      * @param storyId   스토리 업로드 시 스토리 아이디
      * @param imageType main, detail_1 등
      * @return 저장된 파일의 경로(DB에 저장할 상대 경로)
      * @throws IOException 파일 처리 중 오류 발생시 예외 처리
-     *                     // 가져온 파일 임시저장 폴더 같은 곳에 파일 보관해두기
      */
     public String uploadStoryImage(MultipartFile file, int storyId, String imageType) throws IOException {
         isExists(file);
@@ -74,6 +73,12 @@ public class FileUploadService {
         return "/story_images/" + storyId + "/" + fileName;
     }
 
+    /**
+     * 게시물 이미지 업로드
+     * @param file 업로드할 게시물 이미지 파일
+     * @return 저장된 파일의 경로(DB에 저장할 상대 경로)
+     * @throws IOException 파일 처리 중 오류 발생시 예외 처리
+     */
     public String uploadPostImage(MultipartFile file) throws IOException {
         isExists(file);
         File postUploadDir = new File(postFileUploadPath);
@@ -87,7 +92,6 @@ public class FileUploadService {
 
         return "/post_images/" + uniqueFileName;
     }
-
 
     /**
      * 파일 삭제
@@ -137,17 +141,12 @@ public class FileUploadService {
             return false;
         }
     }
-    // 폴더를 명령어나 서버에서 삭제할 때 순서가 있다.
-    // 폴더 안에 파일이 존재하면 파일을 우선적으로 삭제한 다음에 폴더 삭제가 이루어짐
-    // 폴더 내부에 파일이 존재하면 폴더만 삭제한다는 개념이 아님
-    // 비어있는 상품 폴더 삭제
-    // 여러 파일 한 번에 삭제
 
     /**
      * 파일이 비어있는지 확인
      *
      * @param file 파일
-     * @throws IOException
+     * @throws IOException 오류
      */
     private void isExists(MultipartFile file) throws IOException {
         if (file.isEmpty() || file == null) throw new IOException("업로드할 파일이 없습니다.");
@@ -157,7 +156,7 @@ public class FileUploadService {
      * 폴더가 없다면 폴더 생성
      *
      * @param uploadDir 폴더 경로
-     * @throws IOException
+     * @throws IOException 오류
      */
     private void makeDirectory(File uploadDir) throws IOException {
         if (!uploadDir.exists()) {
@@ -182,6 +181,11 @@ public class FileUploadService {
         }
     }
 
+    /**
+     * 확장자명 반환
+     * @param file 전달받은 파일
+     * @return 확장자명
+     */
     private String getExtensionName(MultipartFile file) {
         String originalFileName = file.getOriginalFilename();
         if (originalFileName == null || originalFileName.isEmpty()) {
