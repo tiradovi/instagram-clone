@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_BASE_URL = process.env.REACT_APP_IMAGE_BASE_URL;
+export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 axios.defaults.withCredentials = true;
 // axios 인스턴스를 생성
