@@ -26,14 +26,14 @@ public class WebConfig implements WebMvcConfigurer {
             public void addCorsMappings(CorsRegistry registry) {
                 // REST API CORS 설정
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:3000","https://instagram-clone-eight-sepia.vercel.app/")
+                        .allowedOrigins("http://localhost:3000","https://instagram-clone-ashy-nine.vercel.app")
                         .allowCredentials(true)
                         .allowedMethods("GET","POST","PUT","DELETE","PATCH","OPTIONS")
                         .allowedHeaders("*");
 
                 // WebSocket CORS 설정 추가
                 registry.addMapping("/ws/**")
-                        .allowedOrigins("http://localhost:3000","https://instagram-clone-eight-sepia.vercel.app/")
+                        .allowedOrigins("http://localhost:3000","https://instagram-clone-ashy-nine.vercel.app")
                         .allowCredentials(true)
                         .allowedMethods("GET","POST","PUT","DELETE","PATCH","OPTIONS")
                         .allowedHeaders("*");
@@ -43,13 +43,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("api/profile_images/**")
+        registry.addResourceHandler("/api/profile_images/**")
                 .addResourceLocations("file:"+profileUploadPath+"/");
 
-        registry.addResourceHandler("api/story_images/**")
+        registry.addResourceHandler("/api/story_images/**")
                 .addResourceLocations("file:"+storyUploadPath + "/");
 
-        registry.addResourceHandler("api/post_images/**")
+        registry.addResourceHandler("/api/post_images/**")
                 .addResourceLocations("file:"+postUploadPath + "/");
 
     }
