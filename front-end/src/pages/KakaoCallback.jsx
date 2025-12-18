@@ -38,8 +38,6 @@ const KakaoCallback = () => {
                         email: kakaoUser.userEmail,
                         name: kakaoUser.userName,
                         fullname: kakaoUser.userFullname,
-                        //  a:kakaoUser.email,
-                        // b:kakaoUser.email,
                     }
                 });
             }

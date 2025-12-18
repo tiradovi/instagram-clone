@@ -127,20 +127,21 @@ src/main/resources/mapper/
 | `StoryMapper.xml` | 스토리(Story) 관련 **SQL 정의** |
 | `FollowMapper.xml` | 팔로우(Follow) 관련 **SQL 정의** |
 
----
 # 트러블 슈팅
 
 # 📌 Story ID 직접 삽입으로 인한 INSERT 오류
 
 ## 문제점
 
-MyBatis에서 stories 테이블에 데이터 INSERT시 useGeneratedKeys로 PK가 정상적으로 매핑되지 않는 문제가 발생했습니다.
-````
+MyBatis에서 stories 테이블에 데이터 INSERT 시 `useGeneratedKeys`로 PK가 정상적으로 매핑되지 않는 문제가 발생했습니다.
+
+```
 Duplicate entry '0' for key 'PRIMARY'
-````
+```
 
 ## 원인
-INSERT 구문에서 자동 증가(primary key)로 관리되는 story_id를 직접 넣고 있었습니다.
+
+INSERT 구문에서 자동 증가(primary key)로 관리되는 `story_id`를 직접 넣고 있었습니다.
 
 ```xml
 <insert id="insertStory" parameterType="Story" useGeneratedKeys="true" keyProperty="storyId" keyColumn="story_id">
@@ -148,12 +149,15 @@ INSERT 구문에서 자동 증가(primary key)로 관리되는 story_id를 직�
     VALUES (#{storyId}, #{userId}, #{storyImage}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '24 hours');
 </insert>
 ```
+
 ## 문제 발생 이유
-story_id는 AUTO_INCREMENT / SERIAL / IDENTITY로 자동 생성해야 합니다.
-하지만 개발자가 직접 값을 넣을 경우 INT값이므로 0이 들어가고 이미 존재하는 ID를 넣으면 PRIMARY KEY 충돌 하여 MyBatis의 useGeneratedKeys가 작동하지 않음
-즉, PK를 수동 입력해 자동 증가 로직이 깨지는 문제가 발생했습니다.
+
+`story_id`는 AUTO_INCREMENT / SERIAL / IDENTITY로 자동 생성되어야 합니다.
+하지만 개발자가 직접 값을 넣을 경우 기본값(0)이 전달되거나 이미 존재하는 ID가 삽입되어
+PRIMARY KEY 충돌이 발생했고, 이로 인해 MyBatis의 `useGeneratedKeys`가 정상 동작하지 않았습니다.
 
 ## 변경 후 코드
+
 ```xml
 <insert id="insertStory" parameterType="Story" useGeneratedKeys="true" keyProperty="storyId" keyColumn="story_id">
     INSERT INTO stories(user_id, story_image, created_at, expires_at)
@@ -162,10 +166,145 @@ story_id는 AUTO_INCREMENT / SERIAL / IDENTITY로 자동 생성해야 합니다.
 ```
 
 ## 결과
+
 * Story 업로드 정상 동작
 * 자동 PK 생성 기능 정상화
-* MyBatis에서 storyId 값 자동 수신 성공
+* MyBatis에서 `storyId` 값 자동 수신 성공
 
 ## 요약
-자동 증가되어야 하는 story_id를 INSERT 시 직접 전달한 것이 문제의 원인이었습니다.
-해당 필드를 제거해 DB 자동 생성 방식으로 되돌림으로써 PK 충돌 문제 해결 + useGeneratedKeys 정상 동작이 이루어졌습니다.
+
+자동 증가되어야 하는 `story_id`를 INSERT 시 직접 전달한 것이 문제의 원인이었습니다.
+해당 필드를 제거하여 DB 자동 생성 방식으로 되돌림으로써 PK 충돌 문제와 키 매핑 오류를 해결했습니다.
+
+---
+
+# 📌 Invalid CORS request 오류 (Spring Security 설정 문제)
+
+## 문제점
+
+프론트엔드에서 백엔드 API 호출 시 다음 오류가 발생하며 요청이 차단되었습니다.
+
+```
+Invalid CORS request
+```
+
+## 원인
+
+* Spring Security 환경에서 CORS 설정이 누락됨
+* Preflight(OPTIONS) 요청이 인증 필터에 의해 차단됨
+* 프론트엔드 Origin이 허용 목록에 없음
+
+## 개선 내용
+
+* Security Filter Chain에서 CORS 설정 명시
+* 허용 Origin, Method, Header를 명확히 정의
+* OPTIONS 요청 허용 처리
+
+## 결과
+
+* 프론트엔드 ↔ 백엔드 간 API 통신 정상화
+* 인증/비인증 요청 모두 CORS 오류 제거
+* 배포 환경에서도 동일한 설정 적용 가능
+
+## 요약
+
+CORS 오류를 단순 프론트 문제가 아닌 보안 필터 레벨에서 분석하여,
+Spring Security 설정을 통해 근본적으로 해결했습니다.
+
+---
+
+# 📌 HTTPS 리다이렉트 및 포트 포워딩 설정 문제
+
+## 문제점
+
+HTTPS 요청을 처리하도록 설정했으나,
+백엔드 애플리케이션이 정상적으로 요청을 받지 못하는 문제가 발생했습니다.
+
+## 원인
+
+* EC2에서 SSL 종료 후 내부 포트(9000)로 전달 구조 미정리
+* iptables 리다이렉트 설정과 애플리케이션 포트 혼선
+
+## 개선 내용
+
+* EC2에서 443 → 9000 포트 리다이렉트 설정 정리
+* 애플리케이션은 단일 포트로 요청 처리
+* HTTPS 요청 흐름을 인프라 레벨에서 명확히 분리
+
+## 결과
+
+* HTTPS 요청 정상 처리
+* 프론트엔드에서 HTTPS 기반 API 호출 가능
+* 배포 환경 안정성 향상
+
+## 요약
+
+SSL 처리와 애플리케이션 포트를 명확히 분리하여,
+HTTPS 환경에서도 백엔드 서버가 안정적으로 동작하도록 개선했습니다.
+
+---
+
+# 📌 RDS 연결 실패 (보안 그룹 설정 문제)
+
+## 문제점
+
+애플리케이션 실행 시 RDS 연결이 실패하며 다음 오류가 발생했습니다.
+
+```
+The connection attempt failed
+```
+
+## 원인
+
+* RDS 보안 그룹 인바운드 규칙에 EC2 보안 그룹 미등록
+* 동일한 보안 그룹 규칙이 중복되어 관리 혼선 발생
+
+## 개선 내용
+
+* RDS 보안 그룹에서 EC2 보안 그룹을 명확히 허용
+* 중복 보안 그룹 규칙 정리
+* 포트 및 접근 대상 명확화
+
+## 결과
+
+* 애플리케이션 ↔ RDS 정상 연결
+* 배포 후 DB 접근 오류 제거
+* 보안 그룹 관리 가독성 향상
+
+## 요약
+
+네트워크 오류를 애플리케이션 문제가 아닌 인프라 접근 제어 관점에서 분석하여,
+보안 그룹 설정을 정리함으로써 DB 연결 문제를 해결했습니다.
+
+---
+
+# 📌 Spring MVC 정적 리소스 경로 오류
+
+## 문제점
+
+특정 API 호출 시 다음과 같은 오류가 발생했습니다.
+
+```
+No static resource auth/login
+```
+
+## 원인
+
+* API 요청 경로가 Controller로 매핑되지 않음
+* Spring이 해당 요청을 정적 리소스로 해석
+
+## 개선 내용
+
+* Controller의 RequestMapping 경로 재정의
+* API 경로와 정적 리소스 경로 분리
+
+## 결과
+
+* 로그인 API 정상 동작
+* 불필요한 정적 리소스 탐색 제거
+
+## 요약
+
+Spring MVC의 요청 처리 흐름을 기반으로 문제를 분석하여,
+API 라우팅 오류를 구조적으로 해결했습니다.
+---

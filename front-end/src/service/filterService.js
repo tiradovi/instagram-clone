@@ -25,7 +25,6 @@ export const getFilteredFile = async (file, filter) => {
     try {
         await img.decode(); // 이미지 로드 대기
 
-
         const canvas = document.createElement('canvas');
         canvas.width = img.width;
         canvas.height = img.height;
