@@ -43,13 +43,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/profile_images/**")
+        registry.addResourceHandler("api/profile_images/**")
                 .addResourceLocations("file:"+profileUploadPath+"/");
 
-        registry.addResourceHandler("/story_images/**")
+        registry.addResourceHandler("api/story_images/**")
                 .addResourceLocations("file:"+storyUploadPath + "/");
 
-        registry.addResourceHandler("/post_images/**")
+        registry.addResourceHandler("api/post_images/**")
                 .addResourceLocations("file:"+postUploadPath + "/");
 
     }
