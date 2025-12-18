@@ -19,6 +19,7 @@ const SignupPage = () => {
     useEffect(() => {
         if (location.state?.email) {
             setEmail(location.state.email);
+            setUsername(location.state.name);
             setFullName(location.state.fullName);
             setIsKakaoSignup(true)
         }
