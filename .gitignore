@@ -1,0 +1,24 @@
+# ===== Environment =====
+.env
+.env.*
+!.env.example
+
+# ===== Frontend =====
+front-end/node_modules/
+front-end/build/
+front-end/dist/
+
+# ===== Backend =====
+back-end/build/
+back-end/target/
+back-end/*.log
+
+# ===== Upload files =====
+back-end/profile_images/
+back-end/story_images/
+back-end/post_images/
+
+# ===== IDE / OS =====
+.idea/
+.vscode/
+.DS_Store
