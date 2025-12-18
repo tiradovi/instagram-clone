@@ -171,7 +171,7 @@ const FeedPage = () => {
 
                                 {post.commentCount > 0 && (
                                     <button className="post-comments-btn">
-                                        댓글{post.commentCount}개 모두 보기
+                                        댓글{post.commentCount} 개 모두 보기
                                     </button>
                                 )}
                                 <div className="post-time">
