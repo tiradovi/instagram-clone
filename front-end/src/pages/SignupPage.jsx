@@ -1,14 +1,3 @@
-// ============================================
-// src/pages/SignupPage.jsx
-// TODO: 회원가입 페이지 UI 및 기능 구현
-// - username, email, password, fullName state 선언
-// - loading state 선언
-// - handleSignup 함수: apiService.signup 호출
-// - 회원가입 성공 시 /login으로 이동
-// - Enter 키 입력 시 회원가입 처리
-// - 입력값 검증 (이메일 형식, 사용자명 규칙, 비밀번호 길이)
-// ============================================
-
 import React, {useEffect, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import apiService from '../service/apiService';
@@ -48,7 +37,6 @@ const SignupPage = () => {
     // 8. 실패 시: alert로 에러 메시지 표시 (409: 중복, 400: 잘못된 입력)
     // 9. finally: loading을 false로 설정
     const handleSignup = async () => {
-        // TODO: 함수를 완성하세요
 
         try {
             const response = await apiService.signup(username, email, password, fullName);
