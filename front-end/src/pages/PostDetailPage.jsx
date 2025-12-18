@@ -161,7 +161,7 @@ const PostDetailPage = () => {
                             onDelete={deletePost}/>
                     </div>
 
-                    <img src={post.postImage}
+                    <img src={getImageUrl(post.postImage)}
                          className="post-image"
                     />
                     <div className="post-content">
