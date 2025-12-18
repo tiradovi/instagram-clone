@@ -21,7 +21,7 @@ const KakaoCallback = () => {
     const kakoLoginProcess = async (code) => {
 
         try {
-            const res = await axios.post(`${API_BASE_URL}/api/auth/kakao`, {code});
+            const res = await axios.post(`${API_BASE_URL}/auth/kakao`, {code});
 
             if (res.status === 200) {
                 // 1.이미 가입된 회원 -> 로그인 성공처리
