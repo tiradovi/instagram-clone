@@ -1,4 +1,5 @@
 import {API_BASE_URL} from "./apiService";
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 /**
  * 이미지 경로를 받아서 완전한 URL을 반환하는 함수
