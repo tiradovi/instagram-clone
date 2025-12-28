@@ -50,7 +50,7 @@ root
 
 ### Database & Infra
 
-* MySQL (RDS)
+* PostgreSQL(RDS)
 * AWS EC2
 
 ---
